@@ -827,50 +827,50 @@
    PADRÃO VISUAL IGUAL À TABELA PRINCIPAL — CADASTRO DE OBRAS
    ========================================================= */
 
-#tabelaObras th:nth-child(1),
-#tabelaObras td:nth-child(1){
+  #tabelaObras th:nth-child(1),
+  #tabelaObras td:nth-child(1){
   width:50px;
   text-align:center;
-}
+  }
 
-#tabelaObras th:nth-child(2),
-#tabelaObras td:nth-child(2){
+  #tabelaObras th:nth-child(2),
+  #tabelaObras td:nth-child(2){
   width:200px;
-}
+  }
 
-#tabelaObras th:nth-child(4),
-#tabelaObras td:nth-child(4){
+  #tabelaObras th:nth-child(4),
+  #tabelaObras td:nth-child(4){
   width:77px;
   text-align:center;
-}
+  }
 
-#tabelaObras th:nth-child(5),
-#tabelaObras td:nth-child(5){
+  #tabelaObras th:nth-child(5),
+  #tabelaObras td:nth-child(5){
   width:80px;
   text-align:center;
-}
+  }
 
-/* mesmas cores da tabela principal */
+  /* mesmas cores da tabela principal */
 
-#tabelaObras tbody td:nth-child(1),
-#tabelaObras tbody td:nth-child(2),
-#tabelaObras tbody td:nth-child(3),
-#tabelaObras tbody td:nth-child(4){
+  #tabelaObras tbody td:nth-child(1),
+  #tabelaObras tbody td:nth-child(2),
+  #tabelaObras tbody td:nth-child(3),
+  #tabelaObras tbody td:nth-child(4){
   background:#ccdce7;
-}
+  }
 
-#tabelaObras thead th:nth-child(1),
-#tabelaObras thead th:nth-child(2),
-#tabelaObras thead th:nth-child(3),
-#tabelaObras thead th:nth-child(4){
+  #tabelaObras thead th:nth-child(1),
+  #tabelaObras thead th:nth-child(2),
+  #tabelaObras thead th:nth-child(3),
+  #tabelaObras thead th:nth-child(4){
   background:#b3c9df;
-}
+  }
 
-#tabelaObras tbody td:last-child,
-#tabelaObras thead th:last-child{
+  #tabelaObras tbody td:last-child,
+  #tabelaObras thead th:last-child{
   background:#b3c9df;
   border-left:2px solid #c7cdd4;
-}
+  }
 
 
 /* ===== MODAL DETALHES OBRA ===== */
@@ -1445,6 +1445,22 @@
 
     <div id="conteudoSistema">
       <h2 style="margin-bottom:6px;">Planejamento e Orçamento</h2>
+
+      <!-- CONTROLES DO DASHBOARD -->
+<div id="dashControls" style="margin-bottom:10px; display:none; gap:8px; flex-wrap:wrap;">
+  <button id="btnDashFiltrarObra" class="btnColFilter">
+    Filtrar obra
+  </button>
+
+  <button id="btnDashPeriodo" class="btnColFilter">
+    Selecionar período
+  </button>
+
+  <button id="btnDashLimpar" class="btnColFilter">
+    Limpar filtros
+  </button>
+</div>
+
 
       <div id="topControls">
         <button id="btnNovo">+ Novo Lançamento</button>
@@ -3134,12 +3150,17 @@ function renderizarTabelaObras(lista) {
       setDisplay("formLancamento", "none");
 
       setDisplay("btnNovo", "none");
-      setDisplay("obraFilterWrap", "none");
-      setDisplay("colFilterWrap", "none");
-      setDisplay("periodoDe", "none");
-      setDisplay("periodoAte", "none");
-      setDisplay("btnExportar", "none");
-      setDisplay("btnLimparFiltros", "none");
+
+/* Dashboard – botões ativos */
+setDisplay("obraFilterWrap", "block");
+setDisplay("periodoDe", "block");
+setDisplay("periodoAte", "block");
+setDisplay("btnLimparFiltros", "block");
+
+/* Dashboard – botões que não entram */
+setDisplay("colFilterWrap", "none");
+setDisplay("btnExportar", "none");
+
 
       fecharTodosPainisFiltro();
       destruirCharts();
