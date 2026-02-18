@@ -1,0 +1,3868 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Planejamento e Orçamento</title>
+
+  <style>
+    /* =========================================================
+       ESTILO GERAL (layout SAP / azul)
+       ========================================================= */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      font-size: 14px;
+      color: #333;
+      height: calc(100vh - 40px);
+      overflow: hidden;
+    }
+
+    h1 { font-size: 25px; margin-bottom: 6px; color: #222; }
+    h2 { font-size: 16px; margin-bottom: 6px; color: #222; }
+    h3 { font-size: 14px; margin-bottom: 6px; color: #222; }
+
+    input, select {
+      margin: 5px 10px 10px 0;
+      padding: 6px 8px;
+      width: 180px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      height: 35px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 6px 12px;
+      font-size: 13px;
+      height: 30px;
+      cursor: pointer;
+      border: 1px solid #888;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+    }
+    button:hover { background-color: #e0e0e0; }
+
+    /* =========================================================
+       CABEÇALHO
+       ========================================================= */
+    .header-faixa {
+      width: 100vw;
+      background-color: #082A48;
+      margin-left: calc(-50vw + 50%);
+    }
+
+    .header-conteudo {
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .logo-pride {
+      height: 55px;
+      margin-bottom: 6px;
+      margin-left: -2px;
+    }
+
+    /* =========================================================
+       MENU LATERAL (retrátil)
+       ========================================================= */
+    :root{
+      --menu-fechado: 64px;
+      --menu-aberto: 210px;
+    }
+
+    #sideMenu{
+      position: fixed;
+      top: 110px;
+      left: -10px;
+      bottom: 20px;
+      width: var(--menu-fechado);
+      background: #082a48;
+      border-radius: 0;
+      z-index: 1500;
+      overflow: hidden;
+      transition: width .18s ease;
+    }
+
+    #sideMenu:hover{
+      width: var(--menu-aberto);
+    }
+
+    .sideMenu-inner{
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 8px;
+      gap: 10px;
+      position: relative;
+      justify-content: center; /* CENTRALIZA verticalmente */
+    }
+
+    .sideSpacer{
+      flex: 1 1 auto;
+    }
+
+    .sideBtnDanger .sideIcon{
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .sideBtnDanger:hover{
+      background: rgba(255,80,80,.12);
+    }
+
+    .sideMenu-inner::before{
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 12px;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        rgba(255,255,255,0.05),
+        rgba(200,210,220,0.35),
+        rgba(255,255,255,0.05)
+      );
+    }
+
+    #sideMenu::after{
+      content: "";
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        rgba(255,255,255,0.05),
+        rgba(200,210,220,0.35),
+        rgba(255,255,255,0.05)
+      );
+      pointer-events: none;
+    }
+
+    .sideBtn{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 10px 10px;
+      border-radius: 12px;
+      color: #fff;
+    }
+
+    .sideBtn:hover{
+      background: rgba(255,255,255,.12);
+    }
+
+    .sideBtn.ativo{
+      background: rgba(255,255,255,.12);
+    }
+
+    #btnMenuSair{
+      position: absolute;
+      bottom: 40px;
+      left: 0;
+      right: 0;
+      margin: 0 8px;
+      height: 35px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      box-sizing: border-box;
+      background: #16a34a !important;
+      color: #fff !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none !important;
+      width: auto !important;
+      max-width: none !important;
+    }
+    #btnMenuSair:hover{ background: #22c55e !important; }
+
+    .sideIcon{
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      flex: 0 0 22px;
+    }
+
+    .sideText{
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity .12s ease, transform .12s ease;
+    }
+
+    #sideMenu:hover .sideText{
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    #conteudoSistema{
+      margin-left: calc(var(--menu-fechado) - 1px);
+      transition: margin-left .18s ease;
+    }
+    #sideMenu:hover ~ #app #conteudoSistema{
+      margin-left: calc(var(--menu-aberto) - 1px);
+    }
+
+    /* =========================================================
+       TOP CONTROLS
+       ========================================================= */
+    #topControls{
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 10px 0;
+    }
+
+    /* =========================================================
+       TABELA
+       ========================================================= */
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0 4px;
+      text-align: left;
+      height: 24px;
+      font-size: 10px;
+      box-sizing: border-box;
+    }
+
+    th {
+      text-align: center;
+      background-color: #f9f9f9;
+      text-transform: uppercase;
+      font-size: 9.5px;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.15;
+      padding: 4px 6px;
+    }
+
+    #tabelaLancamentos thead th { vertical-align: middle; }
+
+    #tabelaLancamentos input,
+    #tabelaLancamentos select {
+      width: 100%;
+      height: 22px;
+      font-size: 10px;
+      margin: 0;
+      display: block;
+      box-sizing: border-box;
+      padding: 0 6px;
+      background-color: #fbefc1;
+      border: 1px solid #e2d6b5;
+    }
+
+    tbody tr:nth-child(even) { background-color: #f3f6fa; }
+    tbody tr:hover { background-color: #e9eff1; }
+
+    #tabelaLancamentos td button{
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      font-size: 10px;
+      line-height: 20px;
+      text-align: center;
+    }
+
+    .col-numero { text-align: right; font-variant-numeric: tabular-nums; }
+    #tabelaLancamentos td.col-numero { text-align: right !important; }
+
+    .tabela-card {
+      background: #f3f6fa;
+      border-radius: 10px;
+      box-shadow: 0 -6px 20px rgba(0,0,0,0.12);
+      overflow: visible;
+      margin-top: 12px;
+    }
+
+    .tabela-wrap {
+      height: calc(100vh - 260px);
+      overflow: auto;
+      position: relative;
+    }
+
+    #tabelaLancamentos thead th {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color:#c9dee5;
+    }
+
+    th:nth-child(1),  td:nth-child(1)  { width: 50px;  text-align: center; }  /* ID */
+    th:nth-child(2),  td:nth-child(2)  { width: 200px; }                      /* OBRA */
+    th:nth-child(3),  td:nth-child(3)  { width: 77px;  text-align: center; }  /* Regional */
+    th:nth-child(4),  td:nth-child(4)  { width: 70px;  text-align: center; }  /* Mês */
+
+    th:nth-child(5),  td:nth-child(5)  { width: 120px; }                       /* Valor Global Medições */
+    th:nth-child(6),  td:nth-child(6)  { width: 120px; }                       /* Valor Global Custos */
+    th:nth-child(7),  td:nth-child(7)  { width: 120px; }                       /* Valor Custos c/ Aditivos */
+    th:nth-child(8),  td:nth-child(8)  { width: 120px; }                       /* Valor Custos c/ Contingência */
+    th:nth-child(9),  td:nth-child(9)  { width: 120px; }                       /* Medições Meta Controladoria (R$) */
+    th:nth-child(10), td:nth-child(10) { width: 120px; }                       /* Medições Realizadas Mês (R$) */
+    th:nth-child(11), td:nth-child(11) { width: 120px; }                       /* Custos Meta Controladoria (R$) */
+    th:nth-child(12), td:nth-child(12) { width: 120px; }                       /* Custo Planejado (%) */
+    th:nth-child(13), td:nth-child(13) { width: 120px; }                       /* Custo Agregado AC (%) */
+    th:nth-child(14), td:nth-child(14) { width: 120px; }                       /* Custos Realizados AC (R$) */
+    th:nth-child(15), td:nth-child(15) { width: 120px; }                       /* Custo Comprometido (R$) */
+    th:nth-child(16), td:nth-child(16) { width: 120px; }                       /* IDA */
+    th:nth-child(17), td:nth-child(17) { width: 120px; }                       /* IDF */
+    th:nth-child(18), td:nth-child(18) { width: 80px;  text-align: center; }   /* AÇÕES */
+
+
+    /* =========================================================
+       RODAPÉ FIXO
+       ========================================================= */
+    .footer-sistema {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100vw;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #ffffff;
+      background-color: #082A48;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      z-index: 999;
+    }
+
+    #btnLimparFiltros img:hover { opacity: 0.7; }
+
+    /* =========================================================
+       COLUNAS FIXAS: esquerda e direita
+       ========================================================= */
+    #tabelaLancamentos tbody td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 30;
+      background: #b3c9df;
+    }
+    #tabelaLancamentos thead th:last-child {
+      position: sticky;
+      right: 0;
+      top: 0;
+      z-index: 70;
+      background-color: #b3c9df;
+      text-align: center;
+    }
+    #tabelaLancamentos tbody td:last-child,
+    #tabelaLancamentos thead th:last-child {
+      box-shadow: -1px 0 0 #e5e7eb;
+      border-left: 2px solid #c7cdd4;
+    }
+
+    #tabelaLancamentos tbody td:nth-child(1) { position: sticky; left: 0;   z-index: 25; background:#ccdce7; }
+    #tabelaLancamentos tbody td:nth-child(2) { position: sticky; left: 50px;  z-index: 25; background:#ccdce7; }
+    #tabelaLancamentos tbody td:nth-child(3) { position: sticky; left: 250px; z-index: 25; background:#ccdce7; }
+    #tabelaLancamentos tbody td:nth-child(4) { position: sticky; left: 327px; z-index: 25; background:#ccdce7; }
+
+    #tabelaLancamentos thead th:nth-child(1) { position: sticky; left: 0;   z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(2) { position: sticky; left: 50px;  z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(3) { position: sticky; left: 250px; z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(4) { position: sticky; left: 327px; z-index: 80; background:#b3c9df; }
+
+    #tabelaLancamentos tbody td:nth-child(4),
+    #tabelaLancamentos thead th:nth-child(4) {
+      border-right: 2px solid #c7cdd4;
+      box-shadow: 1px 0 0 #e5e7eb;
+    }
+
+    /* =========================================================
+       DROPDOWNS DE FILTRO
+       ========================================================= */
+    .colFilterWrap{
+      display: inline-block;
+      position: relative;
+      margin-left: 0;
+      vertical-align: middle;
+    }
+
+    .btnColFilter{
+      height: 30px;
+      padding: 6px 10px;
+      border: 1px solid #888;
+      border-radius: 6px;
+      background: #f5f5f5;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btnColFilter:hover{ background:#e0e0e0; }
+
+    .btnColFilter .setinha{
+      font-size: 12px;
+      opacity: .85;
+    }
+
+    .colFilterPanel{
+      position: absolute;
+      left: 0;
+      top: 40px;
+      width: 300px;
+      max-width: 88vw;
+      background: #ffffff;
+      border: 1px solid #b3c9df;
+      border-radius: 10px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      padding: 10px;
+      z-index: 99999;
+      display: none;
+    }
+    .colFilterPanel.aberto{ display:block; }
+
+    .colFilterHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .colFilterTitle{
+      font-size: 12px;
+      font-weight: 700;
+      color: #082A48;
+      margin: 0;
+    }
+
+    .btnFecharFiltro{
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border-radius: 8px;
+      border: 1px solid #b3c9df;
+      background: #f3f6fa;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 26px;
+      text-align:center;
+    }
+    .btnFecharFiltro:hover{ background:#e9eff1; }
+
+    .colFilterSearch{
+      width: 100%;
+      height: 32px;
+      margin: 0 0 8px 0;
+      padding: 6px 8px;
+      font-size: 12px;
+      border: 1px solid #b3c9df;
+      border-radius: 8px;
+      box-sizing: border-box;
+      background: #fbefc1;
+    }
+
+    .colFilterList{
+      max-height: 230px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .colItem{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 4px;
+      border-radius: 6px;
+    }
+    .colItem:hover{ background: #f3f6fa; }
+
+    .colItem input{ width:auto; height:auto; margin:0; }
+
+    .colItem label{
+      font-size: 12px;
+      cursor: pointer;
+      line-height: 1.2;
+      user-select: none;
+    }
+
+    .colFilterActions{
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: flex-end;
+    }
+
+    .miniBtn{
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      border: 1px solid #b3c9df;
+      background: #f3f6fa;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .miniBtn:hover{ background:#e9eff1; }
+
+    /* =========================================================
+       TELAS (LOGIN / RESET)
+       ========================================================= */
+    #loginOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #resetOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .loginBox{
+      width: 360px;
+      background: #f3f6fa;
+      border: 1px solid #b3c9df;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+
+    .loginBox h3{
+      margin: 0 0 12px 0;
+      color: #082A48;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .loginBox input{
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px 10px;
+      height: 38px;
+      border-radius: 6px;
+      border: 1px solid #b3c9df;
+      box-sizing: border-box;
+      background: #fbefc1;
+    }
+
+    .passwordWrap{ position: relative; }
+
+    .btnEye{
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 6px;
+    }
+
+    .btnLogin{
+      width: 100%;
+      height: 38px;
+      margin-top: 10px;
+      background: #082A48;
+      color: #fff;
+      border: 1px solid #082A48;
+      border-radius: 6px;
+    }
+
+    .btnLogin:hover{ background: #061f36; }
+
+    .loginMsg{
+      margin-top: 10px;
+      font-size: 12px;
+      color: #b91c1c;
+      min-height: 16px;
+    }
+
+    .btnEsqueciSenha{
+      width: 100%;
+      margin-top: 8px;
+      background: transparent;
+      border: none;
+      color: #0b3a66;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+    }
+    .btnEsqueciSenha:hover{ color: #082A48; }
+
+    /* =========================================================
+       DASHBOARD
+       ========================================================= */
+    .kpiCard{
+      background:#f3f6fa;
+      border: 1px solid #b3c9df;
+      border-radius: 12px;
+      padding: 12px 14px;
+      min-width: 220px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    }
+    .kpiTitle{
+      font-size: 12px;
+      font-weight: 700;
+      color: #082A48;
+      margin-bottom: 6px;
+    }
+    .kpiValue{
+      font-size: 22px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .legendaIDA{
+      display:flex;
+      align-items:center;
+      gap: 16px;
+      flex-wrap:wrap;
+      background:#082A48;
+      color:#fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .legItem{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .bolinha{
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display:inline-block;
+      border: 1px solid rgba(255,255,255,0.35);
+    }
+
+    #dashboard{
+      height: calc(100vh - 230px);
+      min-height: 360px;
+      padding-bottom: 70px;
+      box-sizing: border-box;
+    }
+
+    .chartCard{
+      background:#ffffff;
+      border: 1px solid #b3c9df;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      height: calc(100% - 120px);
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chartCard h3{
+      flex: 0 0 auto;
+      margin: 0 0 8px 0;
+    }
+
+    .chartsGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      height: calc(100% - 120px);
+      min-height: 320px;
+    }
+    @media (max-width: 980px){
+      .chartsGrid{ grid-template-columns: 1fr; }
+    }
+
+    .chartCard canvas{
+      flex: 1 1 auto;
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    .iconPng{
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .sideBtn,
+    .sideBtn *{
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .sideBtn:focus,
+    .sideBtn:focus-visible,
+    .sideBtn:focus-within,
+    .sideBtn:active{
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .sideBtn{
+      border: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* =========================================================
+       ✅ CADASTRO DE OBRAS (FORM)
+       ========================================================= */
+    .obraFormCard{
+      background:#f3f6fa;
+      border: 1px solid #b3c9df;
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      margin-top: 10px;
+      margin-bottom: 12px;
+    }
+    .obraFormTitle{
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: #082A48;
+    }
+    #cadastroObras input,
+    #cadastroObras select{
+      background:#fbefc1;
+      border: 1px solid #e2d6b5;
+      height: 35px;
+      border-radius: 6px;
+    }
+    .btnSalvarObra{
+      height: 35px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: #082A48;
+      border: 1px solid #082A48;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btnSalvarObra:hover{ background:#061f36; }
+
+    /* ===== AÇÕES (igual ao print) ===== */
+    .tdAcoes{
+      padding: 0 4px !important;
+    }
+
+    .acoesWrap{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btnAcao{
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px;
+      min-height: 22px;
+      padding: 0 !important;
+      border-radius: 5px;
+      border: 1px solid #9bb0c6;
+      background: #f6f8fb;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+
+    .btnAcao:hover{
+      filter: brightness(.97);
+    }
+
+    .btnAcao:active{
+      transform: translateY(0.5px);
+    }
+
+    .btnAcao svg{
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+
+    /* cores do ícone */
+    .btnEditar svg{ fill: #f97316; }   /* laranja */
+    .btnExcluir svg{ fill: #8b95a7; }  /* cinza */
+    .btnAdicionar svg{ fill: #7c3aed; }/* roxo */
+    .btnSalvar svg{ fill: #16a34a; }   /* verde */
+    .btnCancelar svg{ fill: #ef4444; } /* vermelho */
+
+    /* =========================================================
+   PADRÃO VISUAL IGUAL À TABELA PRINCIPAL — CADASTRO DE OBRAS
+   ========================================================= */
+
+#tabelaObras th:nth-child(1),
+#tabelaObras td:nth-child(1){
+  width:50px;
+  text-align:center;
+}
+
+#tabelaObras th:nth-child(2),
+#tabelaObras td:nth-child(2){
+  width:200px;
+}
+
+#tabelaObras th:nth-child(4),
+#tabelaObras td:nth-child(4){
+  width:77px;
+  text-align:center;
+}
+
+#tabelaObras th:nth-child(5),
+#tabelaObras td:nth-child(5){
+  width:80px;
+  text-align:center;
+}
+
+/* mesmas cores da tabela principal */
+
+#tabelaObras tbody td:nth-child(1),
+#tabelaObras tbody td:nth-child(2),
+#tabelaObras tbody td:nth-child(3),
+#tabelaObras tbody td:nth-child(4){
+  background:#ccdce7;
+}
+
+#tabelaObras thead th:nth-child(1),
+#tabelaObras thead th:nth-child(2),
+#tabelaObras thead th:nth-child(3),
+#tabelaObras thead th:nth-child(4){
+  background:#b3c9df;
+}
+
+#tabelaObras tbody td:last-child,
+#tabelaObras thead th:last-child{
+  background:#b3c9df;
+  border-left:2px solid #c7cdd4;
+}
+
+
+/* ===== MODAL DETALHES OBRA ===== */
+#detalhesObraOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 12000;
+}
+
+.detalhesObraBox{
+  width: min(980px, 92vw);
+  max-height: 86vh;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #b3c9df;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+  display: flex;
+  flex-direction: column;
+}
+
+.detalhesObraHeader{
+  background: #082A48;
+  color: #fff;
+  padding: 12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+
+  position: relative; /* ← ISSO resolve o X */
+}
+
+
+.detalhesObraHeader h3{
+  margin: 0;
+  font-size: 25px;      /* ← aumenta a fonte */
+  font-weight: 800;
+  text-align: center;   /* ← centraliza horizontal */
+  width: 100%;          /* ← permite centralizar mesmo com botão X */
+
+  color: #ffffff; /* ← deixa o título branco */
+}
+
+.detalhesObraHeader .sub{
+  font-size: 12px;
+  opacity: .9;
+  margin-top: 2px;
+}
+
+/* =========================================
+   BOTÃO FECHAR (X) DO MODAL DETALHES OBRA
+   ========================================= */
+.detalhesObraClose{
+  position: absolute;
+  top: 20px;
+  right: 12px;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  cursor: pointer;
+}
+
+
+
+.detalhesObraClose:hover{ background: rgba(255,255,255,0.18); }
+
+.detalhesObraBody{
+  padding: 12px 14px;
+  overflow: auto;
+  background: #f3f6fa;
+}
+
+.detSection{
+  background:#fff;
+  border: 1px solid #b3c9df;
+  border-radius: 12px;
+  padding: 10px 10px 12px;
+  margin-bottom: 10px;
+}
+
+.detSectionTitle{
+  font-size: 12px;
+  font-weight: 900;
+  color: #082A48;
+  margin: 0 0 10px 0;
+}
+
+.detGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+/* Identificação com 4 colunas por linha */
+.detGrid.detGrid8{
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 980px){
+  .detGrid{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 620px){
+  .detGrid{ grid-template-columns: 1fr; }
+}
+
+.detField label{
+  display:block;
+  font-size: 11px;
+  font-weight: 800;
+  color:#082A48;
+  margin: 0 0 4px 0;
+}
+.detField input, .detField select{
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  font-size: 12px;
+  background: #fbefc1;
+  border: 1px solid #e2d6b5;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.detFooterLeft,
+.detFooterRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* ===== BOTÃO PADRÃO DO FOOTER (Cancelar / Salvar) ===== */
+.detalhesObraFooter .btnDet{
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #b3c9df;
+  background: #f3f6fa;
+  color: #082A48;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.detalhesObraFooter .btnDet:hover{
+  background: #e9eff1;
+}
+
+/* Primário (Salvar) */
+.detalhesObraFooter .btnDetPrim{
+  background:#082A48;
+  border-color:#082A48;
+  color:#fff;
+}
+.detalhesObraFooter .btnDetPrim:hover{ background:#061f36; }
+
+/* ===== BOTÕES DE ÍCONE (Excel/PDF) ===== */
+.detalhesObraFooter .btnOnlyIcon{
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  border-radius: 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detalhesObraFooter .btnOnlyIcon .btnIconImg{
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
+}
+
+.detalhesObraFooter .btnOnlyIcon:hover{
+  background: rgba(8,42,72,0.08) !important;
+}
+
+/* ===== FOOTER DETALHES OBRA ===== */
+.detalhesObraFooter{
+  display:flex;
+  justify-content:space-between;   /* Excel/PDF esquerda | Cancelar/Salvar direita */
+  align-items:center;
+  gap:12px;
+  padding: 10px 14px;
+  background:#ffffff;
+  border-top: 1px solid #b3c9df;
+}
+
+.detFooterLeft,
+.detFooterRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+
+/* =========================================================
+   ✅ BOTÕES EXCEL/PDF (APENAS NO FOOTER DO MODAL)
+   ========================================================= */
+.detalhesObraFooter .btnDet.btnIcon{
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+}
+
+
+/* tamanho real do ícone (bonito e alinhado) */
+.detalhesObraFooter .btnDet.btnIcon .btnIconImg{
+  width: 100px;
+  height: 50px;
+  display: block;
+  object-fit: contain;
+}
+
+/* ícone bem visível, mas sem “sobrar espaço” */
+.detalhesObraFooter .btnOnlyIcon .btnIconImg{
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
+}
+
+/* hover leve (opcional, fica bonito) */
+.detalhesObraFooter .btnOnlyIcon:hover{
+  background: rgba(8,42,72,0.08) !important;
+}
+
+/* =========================================================
+   ✅ RESUMO AUTOMÁTICO (SEM IA EXTERNA - GRATUITO)
+   ========================================================= */
+.resumoBox{
+  background:#ffffff;
+  border: 1px solid #b3c9df;
+  border-radius: 12px;
+  padding: 10px 10px;
+  margin: 0 0 10px 0;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+}
+
+.resumoHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.resumoTitle{
+  font-size: 12px;
+  font-weight: 900;
+  color:#082A48;
+  margin: 0;
+}
+
+.resumoActions{
+  display:flex;
+  gap: 8px;
+  align-items:center;
+}
+
+.btnResumo{
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #b3c9df;
+  background: #f3f6fa;
+  color: #082A48;
+  font-weight: 800;
+  cursor: pointer;
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+}
+.btnResumo:hover{ background:#e9eff1; }
+
+#txtResumoObra{
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #b3c9df;
+  background: #fbefc1;
+  box-sizing: border-box;
+}
+
+/* ===== MODAL RESUMO ===== */
+#resumoOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 13000;
+}
+
+.resumoModal{
+  width: min(650px, 92vw);   /* ↓ mais estreito (antes 820px) */
+  height: min(78vh, 720px);  /* ↑ mais alto */
+  background: #ffffff;
+  border: 1px solid #b3c9df;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.resumoModalHeader{
+  background: #082A48;
+  color: #fff;
+  padding: 12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  position: relative;
+}
+
+.resumoModalHeader h3{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.resumoModalClose{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  cursor: pointer;
+}
+.resumoModalClose:hover{ background: rgba(255,255,255,0.18); }
+
+.resumoModalBody{
+  padding: 12px 14px;
+  background: #f3f6fa;
+
+  /* ✅ faz o conteúdo esticar */
+  flex: 1;
+  display: flex;
+}
+
+
+/* ===== RESUMO EXECUTIVO (BONITO) ===== */
+.resumoPreview{
+  background:#ffffff;
+  border: 1px solid #b3c9df;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+}
+
+.resumoTopo{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.resumoTopo .titulo{
+  font-size: 16px;
+  font-weight: 900;
+  color:#082A48;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.resumoTopo .subtitulo{
+  font-size: 12px;
+  color:#334155;
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+.resumoTag{
+  background:#082A48;
+  color:#fff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.resumoSec{
+  margin-top: 10px;
+  border-top: 1px dashed #c7d3df;
+  padding-top: 10px;
+}
+
+.resumoSecTitle{
+  font-size: 12px;
+  font-weight: 900;
+  color:#082A48;
+  margin: 0 0 8px 0;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+
+.resumoGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+@media (max-width: 720px){
+  .resumoGrid{ grid-template-columns: 1fr; }
+}
+
+.resumoItem{
+  background:#f3f6fa;
+  border: 1px solid #b3c9df;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.resumoItem .lbl{
+  font-size: 11px;
+  font-weight: 900;
+  color:#082A48;
+  margin-bottom: 3px;
+}
+
+.resumoItem .val{
+  font-size: 12px;
+  font-weight: 700;
+  color:#111827;
+  word-break: break-word;
+}
+
+#txtResumoModal{
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #b3c9df;
+  background: #fbefc1;
+  box-sizing: border-box;
+}
+
+.resumoModalFooter{
+  display:flex;
+  justify-content:flex-end;
+  gap: 10px;
+  padding: 10px 14px;
+  background:#ffffff;
+  border-top: 1px solid #b3c9df;
+}
+
+
+  </style>
+</head>
+<body>
+
+
+
+
+
+  <!-- MENU LATERAL -->
+  <div id="sideMenu" style="display:none;">
+    <div class="sideMenu-inner">
+      <button class="sideBtn" id="btnMenuTabela" type="button">
+        <span class="sideIcon">
+          <img src="iconstabela.png" alt="Tabela" class="iconPng">
+        </span>
+        <span class="sideText">Tabela</span>
+      </button>
+
+      <button class="sideBtn" id="btnMenuDashboard" type="button">
+        <span class="sideIcon">
+          <img src="grafico-de-barras.png" alt="Dashboard" class="iconPng">
+        </span>
+        <span class="sideText">Dashboard</span>
+      </button>
+
+      <button class="sideBtn" id="btnMenuIDF" type="button">
+        <span class="sideIcon">📈</span>
+        <span class="sideText">Cadastro de Obras</span>
+      </button>
+
+      <div class="sideSpacer"></div>
+
+      <button class="sideBtn sideBtnDanger" id="btnMenuSair" type="button">
+        <span class="sideIcon">
+          <img src="icone-sair.png" alt="Sair" class="iconPng">
+        </span>
+        <span class="sideText">Sair</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="resetOverlay" style="display:none;">
+    <div class="loginBox">
+      <h3>Redefinir senha</h3>
+
+      <div class="passwordWrap">
+        <input id="novaSenha" type="password" placeholder="Nova senha" autocomplete="new-password">
+        <button type="button" class="btnEye" onclick="toggleNovaSenha()">👀</button>
+      </div>
+
+      <div class="passwordWrap">
+        <input id="confirmarSenha" type="password" placeholder="Confirmar senha" autocomplete="new-password">
+        <button type="button" class="btnEye" onclick="toggleConfirmarSenha()">👀</button>
+      </div>
+
+      <button id="btnSalvarNovaSenha" class="btnLogin">Salvar nova senha</button>
+      <div id="resetMsg" class="loginMsg"></div>
+    </div>
+  </div>
+
+  <div id="loginOverlay" style="display:none;">
+    <div class="loginBox">
+      <img src="pride_logo_senha.png" alt="Logo Pride" style="height:100px; display:block; margin:0 0 20px 75px;">
+      <h3>Planejamento e Orçamento</h3>
+
+      <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
+      <div class="passwordWrap">
+        <input id="loginSenha" type="password" placeholder="Senha" autocomplete="current-password">
+        <button type="button" class="btnEye" onclick="toggleSenha()">👀</button>
+      </div>
+
+      <button id="btnEntrar" class="btnLogin">Entrar</button>
+
+      <button type="button" id="btnEsqueciSenha" class="btnEsqueciSenha">
+        Esqueci minha senha
+      </button>
+
+      <div id="loginMsg" class="loginMsg"></div>
+    </div>
+  </div>
+
+  <div id="app" style="display:none;">
+    <div class="header-faixa">
+      <div class="header-conteudo">
+        <img src="pride_logo.png" alt="Logo Pride" class="logo-pride" />
+      </div>
+    </div>
+
+    <div id="conteudoSistema">
+      <h2 style="margin-bottom:6px;">Planejamento e Orçamento</h2>
+
+      <div id="topControls">
+        <button id="btnNovo">+ Novo Lançamento</button>
+
+        <!-- FILTRO: OBRAS -->
+        <div class="colFilterWrap" id="obraFilterWrap">
+          <button type="button" class="btnColFilter" id="btnObraFilter">
+            Filtrar obra <span class="setinha">▾</span>
+          </button>
+
+          <div class="colFilterPanel" id="obraFilterPanel">
+            <div class="colFilterHeader">
+              <div class="colFilterTitle">Obras</div>
+              <button type="button" class="btnFecharFiltro" id="btnFecharObra" title="Fechar">✕</button>
+            </div>
+
+            <input type="text" id="obraFilterSearch" class="colFilterSearch" placeholder="Pesquisar obra..." autocomplete="off" />
+            <div class="colFilterList" id="obraFilterList"></div>
+
+            <div class="colFilterActions">
+              <button type="button" class="miniBtn" id="btnObraMarcarTodas">Marcar todas</button>
+              <button type="button" class="miniBtn" id="btnObraDesmarcarTodas">Desmarcar todas</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTRO: COLUNAS -->
+        <div class="colFilterWrap" id="colFilterWrap">
+          <button type="button" class="btnColFilter" id="btnColFilter">
+            Colunas de valores <span class="setinha">▾</span>
+          </button>
+
+          <div class="colFilterPanel" id="colFilterPanel">
+            <div class="colFilterHeader">
+              <div class="colFilterTitle">Exibir colunas</div>
+              <button type="button" class="btnFecharFiltro" id="btnFecharColunas" title="Fechar">✕</button>
+            </div>
+
+            <input type="text" id="colFilterSearch" class="colFilterSearch" placeholder="Pesquisar coluna..." autocomplete="off" />
+            <div class="colFilterList" id="colFilterList"></div>
+
+            <div class="colFilterActions">
+              <button type="button" class="miniBtn" id="btnMarcarTodas">Marcar todas</button>
+              <button type="button" class="miniBtn" id="btnDesmarcarTodas">Desmarcar todas</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERÍODO -->
+        <input id="periodoDe" type="month" style="width:140px; height:35px;">
+        <input id="periodoAte" type="month" style="width:140px; height:35px;">
+
+        <button id="btnExportar">Exportar Excel</button>
+
+        <button id="btnLimparFiltros"
+                title="Limpar filtros"
+                style="position: relative; top: 2px; background:none; border:none; padding:0;">
+          <img src="icone-filtro.png" alt="Limpar filtros" style="width:22px; height:22px; cursor:pointer;">
+        </button>
+      </div>
+
+      <div id="formLancamento" style="display:none; margin-top:10px;">
+        <input type="number" id="idManualForm" placeholder="ID" style="width:90px;" />
+        <input type="text" id="obra" placeholder="Obra" />
+
+        <select id="regional">
+          <option value="">Selecione a Regional</option>
+          <option value="Curitiba">Curitiba</option>
+          <option value="Londrina">Londrina</option>
+        </select>
+
+        <br />
+        <button id="btnSalvar">Salvar Lançamento</button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" style="display:none; margin-top:12px;">
+        <div class="legendaIDA">
+          <div class="legItem"><span class="bolinha" style="background:#22c55e;"></span> >= 1,00</div>
+          <div class="legItem"><span class="bolinha" style="background:#facc15;"></span> >= 0,90 &lt; 1,00</div>
+          <div class="legItem"><span class="bolinha" style="background:#ef4444;"></span> &lt; 0,90</div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+          <div class="kpiCard">
+            <div class="kpiTitle">IDA (Média)</div>
+            <div class="kpiValue" id="kpiIDA">0</div>
+          </div>
+
+          <div class="kpiCard">
+            <div class="kpiTitle">IDF (Média)</div>
+            <div class="kpiValue" id="kpiIDF">0</div>
+          </div>
+        </div>
+
+        <div class="chartsGrid">
+          <div class="chartCard">
+            <h3>IDA por Mês</h3>
+            <canvas id="chartIDAMes"></canvas>
+          </div>
+
+          <div class="chartCard">
+            <h3>IDF por Mês</h3>
+            <canvas id="chartIDFMes"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABELA -->
+      <div class="tabela-card" id="areaTabela">
+        <div class="tabela-wrap">
+          <table id="tabelaLancamentos">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Obra</th>
+                <th>Regional</th>
+                <th>Mês</th>
+                <th>Valor Global Medições</th>
+                <th>Valor Global Custos</th>
+                <th>Valor Custos c/ Aditivos</th>
+                <th>Valor Custos c/ Contingência</th>
+                <th>Medições Meta Controladoria (R$)</th>
+                <th>Medições Realizadas Mês (R$)</th>
+                <th>Custos Meta Controladoria (R$)</th>
+                <th>Custo Planejado (%)</th>
+                <th>Custo Agregado AC (%)</th>
+                <th>Custos Realizados AC (R$)</th>
+                <th>Custo Comprometido (R$)</th>
+                <th>IDA</th>
+                <th>IDF</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CADASTRO DE OBRAS -->
+      <div id="cadastroObras" style="display:none; margin-top:12px;">
+
+        <!-- ✅ FORM CADASTRAR OBRA -->
+        <div class="obraFormCard">
+          <div class="obraFormTitle">Cadastrar Obra</div>
+
+          <input type="number" id="obraIdManual" placeholder="ID (ex: 1)" style="width:110px;">
+          <input type="text" id="obraNome" placeholder="Nome da Obra" style="width:260px;">
+          <input type="text" id="obraCidade" placeholder="Cidade" style="width:160px;">
+
+          <select id="obraRegional" style="width:170px;">
+            <option value="">Regional...</option>
+            <option value="Curitiba">Curitiba</option>
+            <option value="Londrina">Londrina</option>
+          </select>
+
+          <button class="btnSalvarObra" id="btnSalvarObra">Salvar Obra</button>
+        </div>
+
+        <div class="tabela-card">
+          <div class="tabela-wrap">
+            <table id="tabelaObras">
+              <thead>
+                <tr>
+                  <th style="width:20px;">ID</th>
+                  <th>Nome da Obra</th>
+                  <th style="width:77px;">Cidade</th>
+                  <th style="width:77px;">Regional</th>
+                  <th style="width:80px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /cadastroObras -->
+
+    </div><!-- /#conteudoSistema -->
+
+    <footer class="footer-sistema">
+      © 2026 · Planejamento e Orçamento · Construtora Pride
+    </footer>
+  </div>
+
+  <!-- SUPABASE (UMD) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- CHART.JS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- html2canvas (PDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <!-- jsPDF (PDF) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <!-- DATALABELS -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+  <script>
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+
+    /* =========================================================
+       CONFIG
+       ========================================================= */
+    let contadorLinhasTemp = 0;
+
+    if (!window.supabaseClient) {
+      const SUPABASE_URL = "https://ooprswddvrsqegwozdyj.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_fibKeV37PEDaH3RZwTz_ww_wGbK0bwf";
+
+      window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+
+      console.log("Supabase conectado");
+    }
+
+    /* =========================================================
+       ✅ MENU ATIVO (FIXO)
+       ========================================================= */
+    function marcarMenuAtivo(btnId){
+      document.querySelectorAll("#sideMenu .sideBtn").forEach(b => b.classList.remove("ativo"));
+      const btn = document.getElementById(btnId);
+      if(btn) btn.classList.add("ativo");
+    }
+
+    /* =========================================================
+       FORMATADORES
+       ========================================================= */
+    function formatarIdManual(id){
+      if(id === null || id === undefined || id === "") return "";
+      const n = Number(id);
+      if (Number.isNaN(n)) return String(id);
+      return String(n).padStart(3, "0");
+    }
+
+    function formatarMesAno(dataISO) {
+      if (!dataISO) return "";
+      const [ano, mes] = dataISO.split("-");
+      const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+      return `${meses[Number(mes) - 1]}-${ano}`;
+    }
+
+    function normalizarMesISO(v){
+    const s = (v || "").trim();
+    if(!s) return "";
+    // se vier YYYY-MM, vira YYYY-MM-01
+    if (/^\d{4}-\d{2}$/.test(s)) return `${s}-01`;
+    // se vier YYYY-MM-DD, mantém
+    return s.slice(0,10);
+    }
+
+    function proxMesISO(isoYYYYMMDD){
+    if(!isoYYYYMMDD) return null;
+    const [y,m] = isoYYYYMMDD.slice(0,7).split("-").map(Number);
+    const dt = new Date(y, (m - 1) + 1, 1);
+    const yyyy = dt.getFullYear();
+    const mm = String(dt.getMonth() + 1).padStart(2, "0");
+    return `${yyyy}-${mm}-01`;
+  }
+
+    function formatarNumero2(v){
+      const n = Number(v || 0);
+      return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatarNumero3(v){
+      const n = Number(v || 0);
+      return n.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    }
+
+    /* =========================================================
+       COLUNAS DE VALORES
+       ========================================================= */
+    const colunasValores = [
+      { key: "valor_global_medicoes", label: "Valor Global Medições", idx: 5 },
+      { key: "valor_global_custos", label: "Valor Global Custos", idx: 6 },
+      { key: "valor_custos_aditivos", label: "Valor Custos c/ Aditivos", idx: 7 },
+      { key: "valor_custos_contingencia", label: "Valor Custos c/ Contingência", idx: 8 },
+      { key: "medicoes_meta_controladoria", label: "Medições Meta Controladoria (R$)", idx: 9 },
+      { key: "medicoes_realizadas_mes", label: "Medições Realizadas Mês (R$)", idx: 10 },
+      { key: "custos_meta_controladoria", label: "Custos Meta Controladoria (R$)", idx: 11 },
+      { key: "custo_planejado_percentual", label: "Custo Planejado (%)", idx: 12 },
+      { key: "custo_agregado_ac_percentual", label: "Custo Agregado AC (%)", idx: 13 },
+      { key: "custos_realizados_ac", label: "Custos Realizados AC (R$)", idx: 14 },
+      { key: "custo_comprometido", label: "Custo Comprometido (R$)", idx: 15 },
+      { key: "ida", label: "IDA", idx: 16 },
+      { key: "idf", label: "IDF", idx: 17 }
+
+    ];
+
+    let colunasVisiveis = {};
+    colunasValores.forEach(c => colunasVisiveis[c.key] = true);
+
+    function aplicarVisibilidadeColunas() {
+      colunasValores.forEach(c => {
+        const mostrar = !!colunasVisiveis[c.key];
+        document.querySelectorAll(`#tabelaLancamentos thead th:nth-child(${c.idx})`)
+          .forEach(el => el.style.display = mostrar ? "" : "none");
+        document.querySelectorAll(`#tabelaLancamentos tbody td:nth-child(${c.idx})`)
+          .forEach(el => el.style.display = mostrar ? "" : "none");
+      });
+    }
+
+    function obterTextoBuscaColunas() {
+      return (document.getElementById("colFilterSearch")?.value || "").trim().toUpperCase();
+    }
+
+    function montarListaFiltroColunas() {
+      const list = document.getElementById("colFilterList");
+      if (!list) return;
+
+      const busca = obterTextoBuscaColunas();
+      list.innerHTML = "";
+
+      colunasValores.forEach(c => {
+        if (busca && !c.label.toUpperCase().includes(busca)) return;
+
+        const id = `chk_col_${c.key}`;
+        const div = document.createElement("div");
+        div.className = "colItem";
+        div.innerHTML = `
+          <input type="checkbox" id="${id}" ${colunasVisiveis[c.key] ? "checked" : ""}>
+          <label for="${id}">${c.label}</label>
+        `;
+        list.appendChild(div);
+
+        div.querySelector("input").addEventListener("change", (e) => {
+          colunasVisiveis[c.key] = e.target.checked;
+          aplicarVisibilidadeColunas();
+        });
+      });
+    }
+
+    /* =========================================================
+       FILTRO OBRAS
+       ========================================================= */
+    let obrasSelecionadas = new Set();
+
+    function obterTextoBuscaObras() {
+      return (document.getElementById("obraFilterSearch")?.value || "").trim().toUpperCase();
+    }
+
+    function montarListaFiltroObras() {
+      const list = document.getElementById("obraFilterList");
+      if (!list) return;
+
+      const obras = window.listaObras || [];
+      const busca = obterTextoBuscaObras();
+
+      const nenhuma = obrasSelecionadas.has("__NONE__");
+      const todas = (obrasSelecionadas.size === 0);
+
+      list.innerHTML = "";
+
+      const divTodas = document.createElement("div");
+      divTodas.className = "colItem";
+      divTodas.innerHTML = `
+        <input type="checkbox" id="chk_obras_todas" ${todas ? "checked" : ""}>
+        <label for="chk_obras_todas"><b>Todas as obras</b></label>
+      `;
+      list.appendChild(divTodas);
+
+      divTodas.querySelector("input").addEventListener("change", (e) => {
+        if (e.target.checked) {
+          obrasSelecionadas = new Set();
+          montarListaFiltroObras();
+          aplicarFiltroGeral();
+        }
+      });
+
+      obras.forEach((obra, idx) => {
+        if (busca && !String(obra).toUpperCase().includes(busca)) return;
+
+        const id = `chk_obra_${idx}`;
+        const marcada = nenhuma ? false : (todas ? true : obrasSelecionadas.has(obra));
+
+        const div = document.createElement("div");
+        div.className = "colItem";
+        div.innerHTML = `
+          <input type="checkbox" id="${id}" ${marcada ? "checked" : ""}>
+          <label for="${id}">${obra}</label>
+        `;
+        list.appendChild(div);
+
+        div.querySelector("input").addEventListener("change", (e) => {
+          if (todas) obrasSelecionadas = new Set(obras);
+          if (nenhuma) obrasSelecionadas = new Set();
+
+          if (e.target.checked) obrasSelecionadas.add(obra);
+          else obrasSelecionadas.delete(obra);
+
+          if (obrasSelecionadas.size === obras.length) obrasSelecionadas = new Set();
+          if (obrasSelecionadas.size === 0 && !todas) obrasSelecionadas = new Set(["__NONE__"]);
+
+          montarListaFiltroObras();
+          aplicarFiltroGeral();
+        });
+      });
+    }
+
+  /* =========================================================
+   DROPDOWN genérico
+   ========================================================= */
+function configurarDropdown(wrapId, btnId, panelId, closeBtnId, focusInputId) {
+  const wrap = document.getElementById(wrapId);
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  const closeBtn = document.getElementById(closeBtnId);
+
+  if (!wrap || !btn || !panel) return;
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const abriu = !panel.classList.contains("aberto");
+    document.querySelectorAll(".colFilterPanel").forEach(p => p.classList.remove("aberto"));
+    if (abriu) panel.classList.add("aberto");
+    if (abriu && focusInputId) {
+      setTimeout(() => document.getElementById(focusInputId)?.focus(), 0);
+    }
+  });
+
+  closeBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    panel.classList.remove("aberto");
+  });
+}
+
+/* fecha dropdown clicando fora (UMA VEZ só) */
+document.addEventListener("click", (e) => {
+  document.querySelectorAll(".colFilterWrap").forEach(wrap => {
+    const panel = wrap.querySelector(".colFilterPanel");
+    if (panel && !wrap.contains(e.target)) panel.classList.remove("aberto");
+  });
+});
+
+/* inicialização dos dropdowns (FORA da função) */
+configurarDropdown("colFilterWrap", "btnColFilter", "colFilterPanel", "btnFecharColunas", "colFilterSearch");
+configurarDropdown("obraFilterWrap", "btnObraFilter", "obraFilterPanel", "btnFecharObra", "obraFilterSearch");
+
+document.getElementById("colFilterSearch")?.addEventListener("input", montarListaFiltroColunas);
+document.getElementById("obraFilterSearch")?.addEventListener("input", montarListaFiltroObras);
+
+
+    document.getElementById("btnMarcarTodas")?.addEventListener("click", () => {
+      colunasValores.forEach(c => colunasVisiveis[c.key] = true);
+      montarListaFiltroColunas();
+      aplicarVisibilidadeColunas();
+    });
+
+    document.getElementById("btnDesmarcarTodas")?.addEventListener("click", () => {
+      colunasValores.forEach(c => colunasVisiveis[c.key] = false);
+      montarListaFiltroColunas();
+      aplicarVisibilidadeColunas();
+    });
+
+    document.getElementById("btnObraMarcarTodas")?.addEventListener("click", () => {
+      obrasSelecionadas = new Set();
+      montarListaFiltroObras();
+      aplicarFiltroGeral();
+    });
+
+    document.getElementById("btnObraDesmarcarTodas")?.addEventListener("click", () => {
+      obrasSelecionadas = new Set(["__NONE__"]);
+      montarListaFiltroObras();
+      aplicarFiltroGeral();
+    });
+
+    /* =========================================================
+       UI form
+       ========================================================= */
+    document.getElementById("btnNovo")?.addEventListener("click", () => {
+      const form = document.getElementById("formLancamento");
+      if(!form) return;
+      form.style.display = (form.style.display === "none") ? "block" : "none";
+    });
+
+    /* =========================================================
+       EXPORT CSV
+       ========================================================= */
+    document.getElementById("btnExportar")?.addEventListener("click", () => {
+      const tabela = document.getElementById("tabelaLancamentos");
+      if (!tabela) return;
+
+      const ths = Array.from(tabela.querySelectorAll("thead th"));
+      const idxVisiveis = ths
+        .map((th, i) => ({ i, vis: (th.style.display !== "none") }))
+        .filter(x => x.vis)
+        .map(x => x.i);
+
+      const headers = idxVisiveis.map(i => ths[i].innerText.replace(/\s+/g, " ").trim());
+
+      const trs = Array.from(tabela.querySelectorAll("tbody tr"));
+      const rows = trs.map(tr => {
+        const tds = Array.from(tr.querySelectorAll("td"));
+        return idxVisiveis.map(i => {
+          let texto = (tds[i]?.innerText || "").replace(/\s+/g, " ").trim();
+          texto = texto.replace("✏️", "").replace("🗑️", "").replace("➕", "").replace("✔️","").replace("❌","").trim();
+          texto = texto.replace(/"/g, '""');
+          return `"${texto}"`;
+        }).join(";");
+      });
+
+      const csv = [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(";"), ...rows].join("\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      const hoje = new Date().toISOString().slice(0,10);
+      a.href = url;
+      a.download = `Planejamento_Orcamento_${hoje}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    /* =========================================================
+       SALVAR (FORM) - LANÇAMENTOS
+       ========================================================= */
+    document.getElementById("btnSalvar")?.addEventListener("click", async () => {
+      const idManual = Number((document.getElementById("idManualForm")?.value || "").trim());
+      const obra = (document.getElementById("obra")?.value || "").trim();
+      const regional = (document.getElementById("regional")?.value || "");
+
+      if (!Number.isInteger(idManual) || idManual <= 0) {
+        alert("Preencha um ID válido (ex: 1, 2, 3...).");
+        return;
+      }
+      if (!obra || !regional) {
+        alert("Preencha Obra e Regional!");
+        return;
+      }
+
+      const hoje = new Date().toISOString().slice(0, 10);
+
+      const payload = {
+        id_manual: idManual,
+        obra,
+        regional,
+        mes: hoje,
+        valor_global_medicoes: 0,
+        valor_global_custos: 0,
+        valor_custos_aditivos: 0,
+        valor_custos_contingencia: 0,
+        medicoes_meta_controladoria: 0,
+        medicoes_realizadas_mes: 0,
+        custos_meta_controladoria: 0,
+        custo_planejado_percentual: 0,
+        custo_agregado_ac_percentual: 0,
+        custos_realizados_ac: 0,
+        custo_comprometido: 0,
+        ida: 0,
+        idf: 0
+
+      };
+
+      const { error } = await window.supabaseClient
+        .from("lancamentos")
+        .insert([payload]);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao salvar o lançamento. Veja o console (F12).");
+        return;
+      }
+
+      const form = document.getElementById("formLancamento");
+      if(form) form.style.display = "none";
+      if(document.getElementById("idManualForm")) document.getElementById("idManualForm").value = "";
+      if(document.getElementById("obra")) document.getElementById("obra").value = "";
+      if(document.getElementById("regional")) document.getElementById("regional").value = "";
+
+      carregarLancamentos();
+    });
+
+    /* =========================================================
+       RENDERIZA TABELA (LANÇAMENTOS)
+       ========================================================= */
+    function renderizarTabela(lista) {
+      const tbody = document.querySelector("#tabelaLancamentos tbody");
+      if(!tbody) return;
+      tbody.innerHTML = "";
+
+      (lista || []).forEach(lanc => {
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-lanc-id", lanc.lanc_id);
+
+        tr.innerHTML = `
+          <td>${formatarIdManual(lanc.id_manual)}</td>
+          <td>${_escapeHtml(lanc.obra ?? "")}</td>
+          <td>${_escapeHtml(lanc.regional ?? "-")}</td>
+          <td>${formatarMesAno(lanc.mes)}</td>
+
+          <td class="col-numero">${formatarNumero2(lanc.valor_global_medicoes ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.valor_global_custos ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.valor_custos_aditivos ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.valor_custos_contingencia ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.medicoes_meta_controladoria ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.medicoes_realizadas_mes ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.custos_meta_controladoria ?? 0)}</td>
+
+          <td class="col-numero">${formatarNumero2(lanc.custo_planejado_percentual ?? 0)}%</td>
+          <td class="col-numero">${formatarNumero2(lanc.custo_agregado_ac_percentual ?? 0)}%</td>
+
+          <td class="col-numero">${formatarNumero2(lanc.custos_realizados_ac ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.custo_comprometido ?? 0)}</td>
+
+          <td class="col-numero">${formatarNumero2(lanc.ida ?? 0)}</td>
+          <td class="col-numero">${formatarNumero2(lanc.idf ?? 0)}</td>
+
+          <td class="tdAcoes">
+            <div class="acoesWrap">
+              <button class="btnAcao btnEditar" onclick="editarLinha(${lanc.lanc_id})" title="Editar">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"></path>
+                  <path d="M20.71 7.04a1.0 1.0 0 0 0 0-1.41L18.37 3.29a1.0 1.0 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                </svg>
+              </button>
+
+              <button class="btnAcao btnExcluir" onclick="excluirLancamento(${lanc.lanc_id})" title="Excluir">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 7h12l-1 14H7L6 7z"></path>
+                  <path d="M9 4h6l1 2H8l1-2z"></path>
+                </svg>
+              </button>
+
+              <button class="btnAcao btnAdicionar" onclick="adicionarLinhaAbaixo(${lanc.lanc_id})" title="Adicionar abaixo">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      aplicarVisibilidadeColunas();
+    }
+
+    /* =========================================================
+       FILTRO GERAL
+       ========================================================= */
+    function aplicarFiltroGeral() {
+      const de = (document.getElementById("periodoDe")?.value || "").trim();
+      const ate = (document.getElementById("periodoAte")?.value || "").trim();
+
+      const deISO = de ? `${de}-01` : null;
+      const ateISO = ate ? `${ate}-01` : null;
+
+      const nenhuma = obrasSelecionadas.has("__NONE__");
+      const todas = (obrasSelecionadas.size === 0);
+
+      const filtrado = (window.listaLancamentos || []).filter(l => {
+        let obraOk = true;
+        if (nenhuma) obraOk = false;
+        else if (!todas) obraOk = obrasSelecionadas.has(l.obra);
+
+        const mesRegistro = (l.mes || "").toString().slice(0, 10);
+        const deOk = !deISO || (mesRegistro >= deISO);
+        const ateOk = !ateISO || (mesRegistro < proxMesISO(ateISO));
+
+        return obraOk && deOk && ateOk;
+      });
+
+      renderizarTabela(filtrado);
+      aplicarVisibilidadeColunas();
+      montarListaFiltroObras();
+
+      atualizarDashboardSeAberto();
+    }
+
+    /* =========================================================
+       CARREGAR LANÇAMENTOS
+       ========================================================= */
+    async function carregarLancamentos() {
+      const { data, error } = await window.supabaseClient
+        .from("lancamentos")
+        .select("*")
+        .order("mes", { ascending: true })
+        .order("lanc_id", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao carregar lançamentos");
+        return;
+      }
+
+      window.listaLancamentos = data || [];
+      window.listaObras = [...new Set((window.listaLancamentos || []).map(x => x.obra).filter(Boolean))].sort();
+      window.listaIds = [...new Set((window.listaLancamentos || []).map(x => x.id_manual).filter(v => v !== null && v !== undefined))]
+        .sort((a,b)=> Number(a)-Number(b));
+
+      montarListaFiltroObras();
+      montarListaFiltroColunas();
+      aplicarFiltroGeral();
+    }
+
+      document.getElementById("periodoDe")?.addEventListener("change", aplicarFiltroGeral);
+      document.getElementById("periodoAte")?.addEventListener("change", aplicarFiltroGeral);
+      document.getElementById("btnSalvarObra")?.addEventListener("click", async () => {
+      const idManual = Number((document.getElementById("obraIdManual")?.value || "").trim());
+      const nome = (document.getElementById("obraNome")?.value || "").trim();
+      const cidade = (document.getElementById("obraCidade")?.value || "").trim();
+      const regional = (document.getElementById("obraRegional")?.value || "").trim();
+
+      if (!Number.isInteger(idManual) || idManual <= 0) {
+        alert("Preencha um ID válido (ex: 1, 2, 3...).");
+        return;
+      }
+      if (!nome || !cidade || !regional) {
+        alert("Preencha Nome da Obra, Cidade e Regional!");
+        return;
+      }
+
+      const payload = {
+        id_manual: idManual,
+        nome_obra: nome,
+        cidade: cidade,
+        regional: regional
+      };
+
+      const { error } = await window.supabaseClient
+        .from("obras_cadastro")
+        .upsert(payload, { onConflict: "id_manual" });
+
+      if (error) {
+        console.error("ERRO SUPABASE (obras_cadastro):", error);
+        alert("Erro ao salvar obra: " + (error?.message || "ver console (F12)"));
+        return;
+      }
+
+      document.getElementById("obraIdManual").value = "";
+      document.getElementById("obraNome").value = "";
+      document.getElementById("obraCidade").value = "";
+      document.getElementById("obraRegional").value = "";
+
+      carregarObras();
+    });
+
+    /* =========================================================
+       ✅ CADASTRO DE OBRAS: CARREGAR + SALVAR + AÇÕES
+       ========================================================= */
+    let obrasCache = [];
+    let obraEmEdicao = null;
+    let contadorObrasTemp = 0;
+
+    async function carregarObras() {
+      const { data, error } = await window.supabaseClient
+        .from("obras_cadastro")
+        .select("*")
+        .order("obra_id", { ascending: true });
+
+      if (error) {
+        console.error("Erro ao carregar obras:", error);
+        alert("Erro ao carregar obras do Supabase");
+        return;
+      }
+
+      obrasCache = data || [];
+      renderizarTabelaObras(obrasCache);
+    }
+
+function renderizarTabelaObras(lista) {
+  const tbody = document.querySelector("#tabelaObras tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  (lista || []).forEach(obra => {
+    const idMostrar = (obra.id_manual !== null && obra.id_manual !== undefined && obra.id_manual !== "")
+      ? formatarIdManual(obra.id_manual)
+      : (obra.obra_id ?? "");
+
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-obra-id", obra.obra_id);
+
+    tr.innerHTML = `
+      <td style="text-align:center;">${idMostrar}</td>
+      <td>${_escapeHtml(obra.nome_obra ?? "")}</td>
+      <td>${_escapeHtml(obra.cidade ?? "")}</td>
+      <td style="text-align:center;">${_escapeHtml(obra.regional ?? "")}</td>
+      <td class="tdAcoes">
+        <div class="acoesWrap">
+          <button class="btnAcao btnEditar" onclick="window.editarObra(${obra.obra_id})" title="Editar">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"></path>
+              <path d="M20.71 7.04a1.0 1.0 0 0 0 0-1.41L18.37 3.29a1.0 1.0 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+            </svg>
+          </button>
+
+          <button class="btnAcao btnExcluir" onclick="window.excluirObra(${obra.obra_id})" title="Excluir">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 7h12l-1 14H7L6 7z"></path>
+              <path d="M9 4h6l1 2H8l1-2z"></path>
+            </svg>
+          </button>
+
+          <button class="btnAcao btnDetalhes" onclick="window.abrirDetalhesObra(${obra.obra_id})" title="Detalhes">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 .001-16.001A8 8 0 0 1 12 20z"></path>
+              <path d="M11 10h2v7h-2v-7zm0-3h2v2h-2V7z"></path>
+            </svg>
+          </button>
+
+          <button class="btnAcao btnAdicionar" onclick="window.adicionarObraAbaixo(${obra.obra_id})" title="Adicionar abaixo">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"></path>
+            </svg>
+          </button>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+  
+
+    async function excluirObra(obraId){
+      if (!confirm("Tem certeza que deseja excluir esta obra?")) return;
+
+      const { error } = await window.supabaseClient
+        .from("obras_cadastro")
+        .delete()
+        .eq("obra_id", obraId);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao excluir obra");
+        return;
+      }
+
+      carregarObras();
+    }
+    window.excluirObra = excluirObra;
+
+    function editarObra(obraId){
+      if (obraEmEdicao && obraEmEdicao !== obraId) {
+        alert("Finalize a edição atual antes de editar outra obra.");
+        return;
+      }
+      obraEmEdicao = obraId;
+
+      const obra = (obrasCache || []).find(o => o.obra_id === obraId);
+      if (!obra) return;
+
+      const tbody = document.querySelector("#tabelaObras tbody");
+      const tr = tbody?.querySelector(`tr[data-obra-id="${obraId}"]`);
+      if (!tr) return;
+
+      const idMostrar = (obra.id_manual !== null && obra.id_manual !== undefined && obra.id_manual !== "")
+        ? formatarIdManual(obra.id_manual)
+        : (obra.obra_id ?? "");
+
+      tr.innerHTML = `
+        <td style="text-align:center;">${idMostrar}</td>
+        <td><input id="editObraNome_${obraId}" type="text" value="${(obra.nome_obra ?? "").replace(/"/g,'&quot;')}" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+        <td><input id="editObraCidade_${obraId}" type="text" value="${(obra.cidade ?? "").replace(/"/g,'&quot;')}" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+        <td>
+          <select id="editObraRegional_${obraId}" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
+            <option value="">Regional...</option>
+            <option value="Curitiba">Curitiba</option>
+            <option value="Londrina">Londrina</option>
+          </select>
+        </td>
+        <td class="tdAcoes">
+          <div class="acoesWrap">
+            <button class="btnAcao btnSalvar" onclick="salvarEdicaoObra(${obraId})" title="Salvar">
+              <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+            </button>
+            <button class="btnAcao btnCancelar" onclick="cancelarEdicaoObra()" title="Cancelar">
+              <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+            </button>
+          </div>
+        </td>
+      `;
+
+      document.getElementById(`editObraRegional_${obraId}`).value = obra.regional || "";
+    }
+    window.editarObra = editarObra;
+
+    function cancelarEdicaoObra(){
+      obraEmEdicao = null;
+      renderizarTabelaObras(obrasCache);
+    }
+    window.cancelarEdicaoObra = cancelarEdicaoObra;
+
+    async function salvarEdicaoObra(obraId){
+      const nome = (document.getElementById(`editObraNome_${obraId}`)?.value || "").trim();
+      const cidade = (document.getElementById(`editObraCidade_${obraId}`)?.value || "").trim();
+      const regional = (document.getElementById(`editObraRegional_${obraId}`)?.value || "").trim();
+
+      if (!nome || !cidade || !regional){
+        alert("Preencha Nome, Cidade e Regional!");
+        return;
+      }
+
+      const { error } = await window.supabaseClient
+        .from("obras_cadastro")
+        .update({ nome_obra: nome, cidade: cidade, regional: regional })
+        .eq("obra_id", obraId);
+
+      if (error){
+        console.error(error);
+        alert("Erro ao atualizar obra");
+        return;
+      }
+
+      obraEmEdicao = null;
+      carregarObras();
+    }
+    window.salvarEdicaoObra = salvarEdicaoObra;
+
+    function adicionarObraAbaixo(obraIdRef){
+      contadorObrasTemp++;
+      const tempId = `obra-temp-${contadorObrasTemp}`;
+
+      const tbody = document.querySelector("#tabelaObras tbody");
+      const linhaRef = tbody?.querySelector(`tr[data-obra-id="${obraIdRef}"]`);
+      if (!linhaRef) return;
+
+      const tr = document.createElement("tr");
+      tr.id = tempId;
+
+      tr.innerHTML = `
+        <td><input type="number" data-field="id_manual" placeholder="ID" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+        <td><input type="text" data-field="nome_obra" placeholder="Nome da Obra" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+        <td><input type="text" data-field="cidade" placeholder="Cidade" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+        <td>
+          <select data-field="regional" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
+            <option value="">Regional...</option>
+            <option value="Curitiba">Curitiba</option>
+            <option value="Londrina">Londrina</option>
+          </select>
+        </td>
+        <td class="tdAcoes">
+          <div class="acoesWrap">
+            <button class="btnAcao btnSalvar" onclick="salvarObraTemp('${tempId}')" title="Salvar">
+              <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+            </button>
+            <button class="btnAcao btnCancelar" onclick="cancelarObraTemp('${tempId}')" title="Cancelar">
+              <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+            </button>
+          </div>
+        </td>
+      `;
+
+      linhaRef.after(tr);
+    }
+    window.adicionarObraAbaixo = adicionarObraAbaixo;
+
+    function cancelarObraTemp(tempId){
+      const tr = document.getElementById(tempId);
+      if (tr) tr.remove();
+    }
+    window.cancelarObraTemp = cancelarObraTemp;
+
+    async function salvarObraTemp(tempId){
+      const tr = document.getElementById(tempId);
+      if (!tr) return;
+
+      const idManual = Number((tr.querySelector('[data-field="id_manual"]')?.value || "").trim());
+      const nome = (tr.querySelector('[data-field="nome_obra"]')?.value || "").trim();
+      const cidade = (tr.querySelector('[data-field="cidade"]')?.value || "").trim();
+      const regional = (tr.querySelector('[data-field="regional"]')?.value || "").trim();
+
+      if (!Number.isInteger(idManual) || idManual <= 0){
+        alert("Preencha um ID válido (ex: 1, 2, 3...).");
+        return;
+      }
+      if (!nome || !cidade || !regional){
+        alert("Preencha Nome, Cidade e Regional!");
+        return;
+      }
+
+      const payload = { id_manual: idManual, nome_obra: nome, cidade: cidade, regional: regional };
+
+      const { error } = await window.supabaseClient
+        .from("obras_cadastro")
+        .upsert(payload, { onConflict: "id_manual" });
+
+      if (error){
+        console.error(error);
+        alert("Erro ao salvar obra: " + (error?.message || "ver console (F12)"));
+        return;
+      }
+
+      tr.remove();
+      carregarObras();
+    }
+    window.salvarObraTemp = salvarObraTemp;
+
+    /* =========================================================
+       EXCLUIR LANÇAMENTO
+       ========================================================= */
+    async function excluirLancamento(lancId) {
+      if (!confirm("Tem certeza que deseja excluir este lançamento?")) return;
+
+      const { error } = await window.supabaseClient
+        .from("lancamentos")
+        .delete()
+        .eq("lanc_id", lancId);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao excluir lançamento");
+      } else {
+        carregarLancamentos();
+      }
+    }
+    window.excluirLancamento = excluirLancamento;
+
+    /* =========================================================
+       ➕ ADICIONAR LINHA ABAIXO (LANÇAMENTOS)
+       ========================================================= */
+    function adicionarLinhaAbaixo(lancIdRef) {
+      contadorLinhasTemp++;
+      const tempId = `linha-temp-${contadorLinhasTemp}`;
+
+      const refObj = (window.listaLancamentos || []).find(x => x.lanc_id === lancIdRef);
+      if (!refObj) return;
+
+      const tbody = document.querySelector("#tabelaLancamentos tbody");
+      const trs = Array.from(tbody.querySelectorAll("tr"));
+
+      const linhaReferencia = document.querySelector(`tr[data-lanc-id="${lancIdRef}"]`);
+      if(!linhaReferencia){
+      alert("Linha de referência não encontrada na tabela (talvez filtro/ordem).");
+      return;
+      }
+
+      if (!linhaReferencia) return;
+
+      const novaLinha = document.createElement("tr");
+      novaLinha.id = tempId;
+
+      const optionsId = ['<option value="">ID...</option>']
+        .concat((window.listaIds || []).map(id => `<option value="${id}">${formatarIdManual(id)}</option>`))
+        .join("");
+
+      const optionsObras = ['<option value="">Selecione...</option>']
+        .concat((window.listaObras || []).map(o => `<option value="${o}">${o}</option>`))
+        .join("");
+
+      novaLinha.innerHTML = `
+        <td><select data-field="id_manual">${optionsId}</select></td>
+        <td><select data-field="obra">${optionsObras}</select></td>
+        <td>
+          <select data-field="regional">
+            <option value="">Regional...</option>
+            <option value="Curitiba">Curitiba</option>
+            <option value="Londrina">Londrina</option>
+          </select>
+        </td>
+        <td><input type="month" data-field="mes"></td>
+
+
+        <td><input type="number" data-field="medicoes" step="0.01"></td>
+        <td><input type="number" data-field="custos" step="0.01"></td>
+        <td><input type="number" data-field="aditivos" step="0.01"></td>
+        <td><input type="number" data-field="contingencia" step="0.01"></td>
+        <td><input type="number" data-field="meta_med" step="0.01"></td>
+        <td><input type="number" data-field="real_med" step="0.01"></td>
+        <td><input type="number" data-field="meta_custos" step="0.01"></td>
+        <td><input type="number" data-field="custo_plan" step="0.01"></td>
+        <td><input type="number" data-field="custo_agregado_ac" step="0.01"></td>
+        <td><input type="number" data-field="custos_realizados_ac" step="0.01"></td>
+        <td><input type="number" data-field="custo_comprometido" step="0.01"></td>
+        <td><input type="number" data-field="ida" step="0.01"></td>
+        <td><input type="number" data-field="idf" step="0.01"></td>
+
+        <td class="tdAcoes">
+          <div class="acoesWrap">
+            <button class="btnAcao btnSalvar" onclick="salvarLinhaTemp('${tempId}')" title="Salvar">
+              <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+            </button>
+            <button class="btnAcao btnCancelar" onclick="cancelarLinhaTemp('${tempId}')" title="Cancelar">
+              <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+            </button>
+          </div>
+        </td>
+      `;
+
+      linhaReferencia.after(novaLinha);
+
+      novaLinha.querySelector('[data-field="id_manual"]').value = refObj.id_manual ?? "";
+      novaLinha.querySelector('[data-field="obra"]').value = refObj.obra ?? "";
+      novaLinha.querySelector('[data-field="regional"]').value = refObj.regional ?? "";
+      novaLinha.querySelector('[data-field="mes"]').value = (refObj.mes || "").slice(0,7);
+
+      aplicarVisibilidadeColunas();
+    }
+    window.adicionarLinhaAbaixo = adicionarLinhaAbaixo;
+
+    function cancelarLinhaTemp(id) {
+      const linha = document.getElementById(id);
+      if (linha) linha.remove();
+    }
+    window.cancelarLinhaTemp = cancelarLinhaTemp;
+
+    async function salvarLinhaTemp(id) {
+      const linha = document.getElementById(id);
+      if (!linha) return;
+
+      const idManual = Number((linha.querySelector('[data-field="id_manual"]')?.value || "").trim());
+      const obra = (linha.querySelector('[data-field="obra"]')?.value || "").trim();
+      const regional = (linha.querySelector('[data-field="regional"]')?.value || "").trim();
+      const mes = normalizarMesISO(linha.querySelector('[data-field="mes"]')?.value || "");
+
+      const medicoes = parseFloat(linha.querySelector('[data-field="medicoes"]')?.value || "NaN");
+      const custos = parseFloat(linha.querySelector('[data-field="custos"]')?.value || "NaN");
+
+      const aditivos = parseFloat(linha.querySelector('[data-field="aditivos"]')?.value || 0);
+      const contingencia = parseFloat(linha.querySelector('[data-field="contingencia"]')?.value || 0);
+      const metaMed = parseFloat(linha.querySelector('[data-field="meta_med"]')?.value || 0);
+      const realMed = parseFloat(linha.querySelector('[data-field="real_med"]')?.value || 0);
+      const metaCustos = parseFloat(linha.querySelector('[data-field="meta_custos"]')?.value || 0);
+      const custoPlan = parseFloat(linha.querySelector('[data-field="custo_plan"]')?.value || 0);
+      const custoAgregado = parseFloat(linha.querySelector('[data-field="custo_agregado_ac"]')?.value || 0);
+      const custosRealizadosAC = parseFloat(linha.querySelector('[data-field="custos_realizados_ac"]')?.value || 0);
+      const custoComprometido = parseFloat(linha.querySelector('[data-field="custo_comprometido"]')?.value || 0);
+      const ida = parseFloat(linha.querySelector('[data-field="ida"]')?.value || 0);
+      const idf = parseFloat(linha.querySelector('[data-field="idf"]')?.value || 0);
+
+      if (!Number.isInteger(idManual) || idManual <= 0) {
+        alert("Preencha um ID válido (ex: 1, 2, 3...).");
+        return;
+      }
+      if (!obra || !regional || !mes || isNaN(medicoes) || isNaN(custos)) {
+        alert("Preencha ID, Obra, Regional, Mês, Medições e Custos!");
+        return;
+      }
+
+      const payload = {
+        id_manual: idManual,
+        obra,
+        regional,
+        mes,
+        valor_global_medicoes: medicoes,
+        valor_global_custos: custos,
+        valor_custos_aditivos: aditivos,
+        valor_custos_contingencia: contingencia,
+        medicoes_meta_controladoria: metaMed,
+        medicoes_realizadas_mes: realMed,
+        custos_meta_controladoria: metaCustos,
+        custo_planejado_percentual: custoPlan,
+        custo_agregado_ac_percentual: custoAgregado,
+        custos_realizados_ac: custosRealizadosAC,
+        custo_comprometido: custoComprometido,
+        ida: ida,
+        idf: idf
+
+      };
+
+      const { data, error } = await window.supabaseClient
+        .from("lancamentos")
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao salvar novo lançamento. Veja o console (F12).");
+        return;
+      }
+
+      window.listaLancamentos = window.listaLancamentos || [];
+      window.listaLancamentos.push(data);
+
+      window.listaObras = [...new Set(window.listaLancamentos.map(x => x.obra).filter(Boolean))].sort();
+      window.listaIds = [...new Set(window.listaLancamentos.map(x => x.id_manual).filter(v => v !== null && v !== undefined))]
+        .sort((a,b)=> Number(a)-Number(b));
+
+      linha.remove();
+      montarListaFiltroObras();
+      aplicarFiltroGeral();
+    }
+    window.salvarLinhaTemp = salvarLinhaTemp;
+
+    /* =========================================================
+       EDITAR INLINE (LANÇAMENTOS)
+       ========================================================= */
+    let linhaEmEdicao = null;
+
+    function editarLinha(lancId) {
+      if (linhaEmEdicao && linhaEmEdicao !== lancId) {
+        alert("Finalize a edição atual antes de editar outra linha.");
+        return;
+      }
+      linhaEmEdicao = lancId;
+
+      const lanc = (window.listaLancamentos || []).find(l => l.lanc_id === lancId);
+      if (!lanc) return;
+
+      const tbody = document.querySelector("#tabelaLancamentos tbody");
+      const tr = tbody?.querySelector(`tr[data-lanc-id="${lancId}"]`);
+      if (!tr) {
+      alert("Linha não encontrada na tabela (talvez por filtro).");
+      return;
+      }
+
+
+      const obras = window.listaObras || [];
+      const optionsObras = ['<option value="">Selecione...</option>']
+        .concat(obras.map(o => `<option value="${o}">${o}</option>`))
+        .join("");
+
+      tr.innerHTML = `
+        <td>${formatarIdManual(lanc.id_manual)}</td>
+        <td><select id="editObra_${lancId}" style="width:140px;">${optionsObras}</select></td>
+
+        <td>
+          <select id="editRegional_${lancId}" style="width:110px;">
+            <option value="">Regional...</option>
+            <option value="Curitiba">Curitiba</option>
+            <option value="Londrina">Londrina</option>
+          </select>
+        </td>
+
+        <td><input type="month" id="editMes_${lancId}" value="${(lanc.mes || "").slice(0,7)}"></td>
+
+        <td><input type="number" id="editMed_${lancId}" step="0.01" value="${Number(lanc.valor_global_medicoes ?? 0)}"></td>
+        <td><input type="number" id="editCust_${lancId}" step="0.01" value="${Number(lanc.valor_global_custos ?? 0)}"></td>
+        <td><input type="number" id="editAdit_${lancId}" step="0.01" value="${Number(lanc.valor_custos_aditivos ?? 0)}"></td>
+        <td><input type="number" id="editCont_${lancId}" step="0.01" value="${Number(lanc.valor_custos_contingencia ?? 0)}"></td>
+        <td><input type="number" id="editMeta_${lancId}" step="0.01" value="${Number(lanc.medicoes_meta_controladoria ?? 0)}"></td>
+        <td><input type="number" id="editReal_${lancId}" step="0.01" value="${Number(lanc.medicoes_realizadas_mes ?? 0)}"></td>
+        <td><input type="number" id="editCustosMeta_${lancId}" step="0.01" value="${Number(lanc.custos_meta_controladoria ?? 0)}"></td>
+        <td><input type="number" id="editCustoPlan_${lancId}" step="0.01" value="${Number(lanc.custo_planejado_percentual ?? 0)}"></td>
+        <td><input type="number" id="editCustoAgregado_${lancId}" step="0.01" value="${Number(lanc.custo_agregado_ac_percentual ?? 0)}"></td>
+        <td><input type="number" id="editCustosRealizadosAC_${lancId}" step="0.01" value="${Number(lanc.custos_realizados_ac ?? 0)}"></td>
+        <td><input type="number" id="editCustoComprometido_${lancId}" step="0.01" value="${Number(lanc.custo_comprometido ?? 0)}"></td>
+        <td><input type="number" id="editIDA_${lancId}" step="0.01" value="${Number(lanc.ida ?? 0)}"></td>
+        <td><input type="number" id="editIDF_${lancId}" step="0.01" value="${Number(lanc.idf ?? 0)}"></td>
+
+
+        <td class="tdAcoes">
+          <div class="acoesWrap">
+            <button class="btnAcao btnSalvar" onclick="salvarEdicaoLinha(${lancId})" title="Salvar">
+              <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+            </button>
+            <button class="btnAcao btnCancelar" onclick="cancelarEdicaoLinha()" title="Cancelar">
+              <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+            </button>
+          </div>
+        </td>
+      `;
+
+      document.getElementById(`editObra_${lancId}`).value = lanc.obra || "";
+      document.getElementById(`editRegional_${lancId}`).value = lanc.regional || "";
+
+      aplicarVisibilidadeColunas();
+    }
+    window.editarLinha = editarLinha;
+
+    function cancelarEdicaoLinha() {
+      linhaEmEdicao = null;
+      carregarLancamentos();
+    }
+    window.cancelarEdicaoLinha = cancelarEdicaoLinha;
+
+    async function salvarEdicaoLinha(lancId) {
+      const obra = document.getElementById(`editObra_${lancId}`)?.value;
+      const regional = document.getElementById(`editRegional_${lancId}`)?.value;
+      const mes = normalizarMesISO(document.getElementById(`editMes_${lancId}`)?.value || "");
+
+      const medicoes = parseFloat(document.getElementById(`editMed_${lancId}`)?.value);
+      const custos = parseFloat(document.getElementById(`editCust_${lancId}`)?.value);
+      const aditivos = parseFloat(document.getElementById(`editAdit_${lancId}`)?.value);
+      const contingencia = parseFloat(document.getElementById(`editCont_${lancId}`)?.value);
+      const metaControladoria = parseFloat(document.getElementById(`editMeta_${lancId}`)?.value || 0);
+      const realizadasMes = parseFloat(document.getElementById(`editReal_${lancId}`)?.value || 0);
+      const custosMeta = parseFloat(document.getElementById(`editCustosMeta_${lancId}`)?.value || 0);
+      const custoPlanejado = parseFloat(document.getElementById(`editCustoPlan_${lancId}`)?.value || 0);
+      const custoAgregado = parseFloat(document.getElementById(`editCustoAgregado_${lancId}`)?.value || 0);
+      const custosRealizadosAC = parseFloat(document.getElementById(`editCustosRealizadosAC_${lancId}`)?.value || 0);
+      const custoComprometido = parseFloat(document.getElementById(`editCustoComprometido_${lancId}`)?.value || 0);
+      const ida = parseFloat(document.getElementById(`editIDA_${lancId}`)?.value || 0);
+      const idf = parseFloat(document.getElementById(`editIDF_${lancId}`)?.value || 0);
+
+      if (!obra || !regional || !mes ||
+        [medicoes, custos, aditivos, contingencia, metaControladoria, realizadasMes, custosMeta, custoPlanejado, custoAgregado, custosRealizadosAC, custoComprometido, ida, idf]
+          .some(v => Number.isNaN(v))) {
+        alert("Preencha todos os campos corretamente!");
+        return;
+      }
+
+      const { error } = await window.supabaseClient
+        .from("lancamentos")
+        .update({
+          obra,
+          regional,
+          mes,
+          valor_global_medicoes: medicoes,
+          valor_global_custos: custos,
+          valor_custos_aditivos: aditivos,
+          valor_custos_contingencia: contingencia,
+          medicoes_meta_controladoria: metaControladoria,
+          medicoes_realizadas_mes: realizadasMes,
+          custos_meta_controladoria: custosMeta,
+          custo_planejado_percentual: custoPlanejado,
+          custo_agregado_ac_percentual: custoAgregado,
+          custos_realizados_ac: custosRealizadosAC,
+          custo_comprometido: custoComprometido,
+          ida: ida,
+          idf: idf
+
+        })
+        .eq("lanc_id", lancId);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao atualizar lançamento");
+        return;
+      }
+
+      linhaEmEdicao = null;
+      carregarLancamentos();
+    }
+    window.salvarEdicaoLinha = salvarEdicaoLinha;
+
+    /* =========================================================
+       LIMPAR FILTROS
+       ========================================================= */
+    document.getElementById("btnLimparFiltros")?.addEventListener("click", () => {
+      const periodoDe = document.getElementById("periodoDe");
+      const periodoAte = document.getElementById("periodoAte");
+      if (periodoDe) periodoDe.value = "";
+      if (periodoAte) periodoAte.value = "";
+
+      obrasSelecionadas = new Set();
+      const obraSearch = document.getElementById("obraFilterSearch");
+      if (obraSearch) obraSearch.value = "";
+      montarListaFiltroObras();
+
+      colunasValores.forEach(c => colunasVisiveis[c.key] = true);
+      const colSearch = document.getElementById("colFilterSearch");
+      if (colSearch) colSearch.value = "";
+      montarListaFiltroColunas();
+      aplicarVisibilidadeColunas();
+
+      document.querySelectorAll(".colFilterPanel").forEach(p => p.classList.remove("aberto"));
+
+      aplicarFiltroGeral();
+    });
+
+    /* =========================================================
+       LOGIN / RESET (SUPABASE AUTH)
+       ========================================================= */
+    function mostrarLogin() {
+      document.getElementById("loginOverlay").style.display = "flex";
+      document.getElementById("resetOverlay").style.display = "none";
+      document.getElementById("app").style.display = "none";
+      document.getElementById("sideMenu").style.display = "none";
+    }
+
+    function mostrarResetSenha() {
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("app").style.display = "none";
+      document.getElementById("resetOverlay").style.display = "flex";
+      document.getElementById("sideMenu").style.display = "none";
+    }
+
+    function esconderResetSenha() {
+      document.getElementById("resetOverlay").style.display = "none";
+    }
+
+    function mostrarSistema() {
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("resetOverlay").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      document.getElementById("sideMenu").style.display = "block";
+    }
+
+    function setLoginMsg(txt){
+      const el = document.getElementById("loginMsg");
+      if(el) el.textContent = txt || "";
+    }
+
+    function setResetMsg(txt){
+      const el = document.getElementById("resetMsg");
+      if(el) el.textContent = txt || "";
+    }
+
+    function toggleSenha(){
+      const inp = document.getElementById("loginSenha");
+      if(!inp) return;
+      inp.type = (inp.type === "password") ? "text" : "password";
+    }
+
+    function toggleNovaSenha(){
+      const inp = document.getElementById("novaSenha");
+      if(!inp) return;
+      inp.type = (inp.type === "password") ? "text" : "password";
+    }
+
+    function toggleConfirmarSenha(){
+      const inp = document.getElementById("confirmarSenha");
+      if(!inp) return;
+      inp.type = (inp.type === "password") ? "text" : "password";
+    }
+
+    document.getElementById("btnEsqueciSenha")?.addEventListener("click", async () => {
+      const email = (document.getElementById("loginEmail")?.value || "").trim();
+      if (!email) { setLoginMsg("Digite seu email acima para receber o link de recuperação."); return; }
+      setLoginMsg("");
+      const redirectTo = `${location.origin}${location.pathname}`;
+
+      const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) { console.error(error); setLoginMsg("Não foi possível enviar o e-mail. Verifique o email e tente novamente."); return; }
+      setLoginMsg("E-mail enviado! Verifique sua caixa de entrada (e spam).");
+    });
+
+    document.getElementById("btnEntrar")?.addEventListener("click", async () => {
+      const email = (document.getElementById("loginEmail")?.value || "").trim();
+      const senha = (document.getElementById("loginSenha")?.value || "").trim();
+      if(!email || !senha){ setLoginMsg("Informe email e senha."); return; }
+
+      setLoginMsg("");
+      const { error } = await window.supabaseClient.auth.signInWithPassword({ email, password: senha });
+      if(error){ console.error(error); setLoginMsg("Login inválido. Verifique email/senha."); return; }
+
+      mostrarSistema();
+      await carregarLancamentos();
+      abrirTabela();
+    });
+
+    document.getElementById("btnSalvarNovaSenha")?.addEventListener("click", async () => {
+      const s1 = (document.getElementById("novaSenha")?.value || "").trim();
+      const s2 = (document.getElementById("confirmarSenha")?.value || "").trim();
+
+      if (!s1 || !s2) { setResetMsg("Preencha a nova senha e a confirmação."); return; }
+      if (s1.length < 6) { setResetMsg("A senha deve ter no mínimo 6 caracteres."); return; }
+      if (s1 !== s2) { setResetMsg("As senhas não conferem."); return; }
+
+      setResetMsg("");
+      const { error } = await window.supabaseClient.auth.updateUser({ password: s1 });
+      if (error) { console.error(error); setResetMsg("Não foi possível salvar. Tente novamente."); return; }
+
+      setResetMsg("Senha atualizada com sucesso! Você já pode entrar.");
+      setTimeout(() => { esconderResetSenha(); mostrarLogin(); }, 1200);
+    });
+
+    document.getElementById("btnMenuSair")?.addEventListener("click", async () => {
+      await window.supabaseClient.auth.signOut();
+      location.reload();
+    });
+
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") { mostrarResetSenha(); return; }
+      if (session) { mostrarSistema(); } else { mostrarLogin(); }
+    });
+
+    async function checarSessaoInicial(){
+      const { data, error } = await window.supabaseClient.auth.getSession();
+      if(error){ console.error(error); mostrarLogin(); return; }
+      const session = data?.session;
+      if (session) { mostrarSistema(); await carregarLancamentos(); abrirTabela(); }
+      else { mostrarLogin(); }
+    }
+
+    /* =========================================================
+       DASHBOARD (IDA + IDF)
+       ========================================================= */
+    let chartIDAMes = null;
+    let chartIDFMes = null;
+
+    const COR_VERDE = "#22c55e";
+    const COR_AMARELO = "#facc15";
+    const COR_VERMELHO = "#ef4444";
+
+    function corPorIndicador(valor){
+      const v = Number(valor);
+      if (!Number.isFinite(v)) return COR_VERMELHO;
+      if (v >= 1.0) return COR_VERDE;
+      if (v >= 0.90) return COR_AMARELO;
+      return COR_VERMELHO;
+    }
+
+    function obterListaFiltradaParaDashboard(){
+      const de = (document.getElementById("periodoDe")?.value || "").trim();
+      const ate = (document.getElementById("periodoAte")?.value || "").trim();
+
+      const deISO = de ? `${de}-01` : null;
+      const ateISO = ate ? `${ate}-01` : null;
+
+      const nenhuma = obrasSelecionadas.has("__NONE__");
+      const todas = (obrasSelecionadas.size === 0);
+
+      return (window.listaLancamentos || []).filter(l => {
+        let obraOk = true;
+        if (nenhuma) obraOk = false;
+        else if (!todas) obraOk = obrasSelecionadas.has(l.obra);
+
+        const mesRegistro = (l.mes || "").toString().slice(0, 10);
+        const deOk = !deISO || (mesRegistro >= deISO);
+        const ateOk = !ateISO || (mesRegistro < proxMesISO(ateISO));
+
+        return obraOk && deOk && ateOk;
+      });
+    }
+
+    function agruparMediaPorMes(lista, campo){
+      const map = new Map();
+      lista.forEach(l => {
+        const iso = (l.mes || "").toString().slice(0,10);
+        const key = iso ? iso.slice(0,7) : "SEM-MES";
+
+        const v = Number(l[campo]);
+        if (!Number.isFinite(v)) return;
+
+        const atual = map.get(key) || { soma: 0, qt: 0 };
+        atual.soma += v;
+        atual.qt += 1;
+        map.set(key, atual);
+      });
+
+      const keys = Array.from(map.keys()).sort();
+
+      const valores = keys.map(k => {
+        const obj = map.get(k);
+        return obj && obj.qt ? (obj.soma / obj.qt) : 0;
+      });
+
+      const labels = keys.map(k => {
+        if (k === "SEM-MES") return "SEM-MÊS";
+        const [ano, mes] = k.split("-");
+        const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+        return `${meses[Number(mes)-1]}-${ano}`;
+      });
+
+      return { labels, valores };
+    }
+
+    function atualizarKPI(lista, campo, elId, casas=3){
+      const vals = lista.map(l => Number(l[campo])).filter(x => Number.isFinite(x));
+      const media = vals.length ? (vals.reduce((a,b)=>a+b,0) / vals.length) : 0;
+      document.getElementById(elId).textContent = (casas === 2) ? formatarNumero2(media) : formatarNumero3(media);
+    }
+
+    function destruirCharts(){
+      if (chartIDAMes) { chartIDAMes.destroy(); chartIDAMes = null; }
+      if (chartIDFMes) { chartIDFMes.destroy(); chartIDFMes = null; }
+    }
+
+    function montarGraficoBar(canvasId, labels, valores, tituloTooltip){
+      const canvas = document.getElementById(canvasId);
+      if(!canvas) return null;
+
+      if (window.ChartDataLabels) {
+        Chart.register(ChartDataLabels);
+      }
+
+      return new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: tituloTooltip,
+            data: valores,
+            backgroundColor: (ctx) => corPorIndicador(ctx.raw),
+            borderColor: (ctx) => corPorIndicador(ctx.raw),
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 18, bottom: 26, left: 6, right: 6 } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const v = Number(ctx.raw);
+                  let faixa = "< 0,90";
+                  if (v >= 1.0) faixa = ">= 1,00";
+                  else if (v >= 0.90) faixa = ">= 0,90 e < 1,00";
+                  return ` ${tituloTooltip}: ${formatarNumero2(v)} | Faixa: ${faixa}`;
+                }
+              }
+            },
+            datalabels: {
+              anchor: "end",
+              align: "end",
+              offset: 2,
+              clip: false,
+              formatter: (v) => formatarNumero2(v),
+              font: { size: 11, weight: "bold" },
+              color: "#111827"
+            }
+          },
+          scales: {
+            x: {
+              display: true,
+              grid: { display: false },
+              ticks: {
+                display: true,
+                autoSkip: false,
+                maxRotation: 0,
+                padding: 12,
+                font: { size: 11, weight: "bold" },
+                color: "#111827"
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: "rgba(0,0,0,0.06)" },
+              ticks: { font: { size: 11 }, color: "#111827" }
+            }
+          }
+        }
+      });
+    }
+
+    function montarDashboard(){
+      const lista = obterListaFiltradaParaDashboard();
+      atualizarKPI(lista, "ida", "kpiIDA", 3);
+      atualizarKPI(lista, "idf", "kpiIDF", 3);
+
+      const idaMes = agruparMediaPorMes(lista, "ida");
+      const idfMes = agruparMediaPorMes(lista, "idf");
+
+      chartIDAMes = montarGraficoBar("chartIDAMes", idaMes.labels, idaMes.valores, "IDA (média)");
+      chartIDFMes = montarGraficoBar("chartIDFMes", idfMes.labels, idfMes.valores, "IDF (média)");
+
+      setTimeout(() => {
+        if (chartIDAMes) chartIDAMes.resize();
+        if (chartIDFMes) chartIDFMes.resize();
+      }, 0);
+    }
+
+    /* =========================================================
+       ABRIR TELAS (Tabela / Dashboard / Cadastro)
+       ========================================================= */
+    let dashboardAberto = false;
+
+    function setDisplay(id, valor){
+      const el = document.getElementById(id);
+      if (el) el.style.display = valor;
+    }
+
+    function fecharTodosPainisFiltro(){
+      document.querySelectorAll(".colFilterPanel").forEach(p => p.classList.remove("aberto"));
+    }
+
+    function abrirTabela(){
+      dashboardAberto = false;
+      marcarMenuAtivo("btnMenuTabela");
+
+      setDisplay("cadastroObras", "none");
+      setDisplay("dashboard", "none");
+      setDisplay("areaTabela", "block");
+
+      setDisplay("btnNovo", "inline-block");
+      setDisplay("obraFilterWrap", "inline-block");
+      setDisplay("colFilterWrap", "inline-block");
+      setDisplay("periodoDe", "inline-block");
+      setDisplay("periodoAte", "inline-block");
+      setDisplay("btnExportar", "inline-block");
+      setDisplay("btnLimparFiltros", "inline-block");
+
+      fecharTodosPainisFiltro();
+      destruirCharts();
+    }
+
+    function abrirDashboard(){
+      dashboardAberto = true;
+      marcarMenuAtivo("btnMenuDashboard");
+
+      setDisplay("cadastroObras", "none");
+      setDisplay("dashboard", "block");
+      setDisplay("areaTabela", "none");
+      setDisplay("formLancamento", "none");
+
+      setDisplay("btnNovo", "none");
+      setDisplay("obraFilterWrap", "none");
+      setDisplay("colFilterWrap", "none");
+      setDisplay("periodoDe", "none");
+      setDisplay("periodoAte", "none");
+      setDisplay("btnExportar", "none");
+      setDisplay("btnLimparFiltros", "none");
+
+      fecharTodosPainisFiltro();
+      destruirCharts();
+      montarDashboard();
+    }
+
+    function abrirCadastroObras(){
+      dashboardAberto = false;
+      marcarMenuAtivo("btnMenuIDF");
+
+      setDisplay("cadastroObras", "block");
+      setDisplay("dashboard", "none");
+      setDisplay("areaTabela", "none");
+      setDisplay("formLancamento", "none");
+
+      setDisplay("btnNovo", "none");
+      setDisplay("obraFilterWrap", "none");
+      setDisplay("colFilterWrap", "none");
+      setDisplay("periodoDe", "none");
+      setDisplay("periodoAte", "none");
+      setDisplay("btnExportar", "none");
+      setDisplay("btnLimparFiltros", "none");
+
+      fecharTodosPainisFiltro();
+      destruirCharts();
+      carregarObras();
+    }
+
+    function atualizarDashboardSeAberto(){
+      if(!dashboardAberto) return;
+      destruirCharts();
+      montarDashboard();
+    }
+
+    window.addEventListener("resize", () => {
+      if (dashboardAberto && chartIDAMes) chartIDAMes.resize();
+      if (dashboardAberto && chartIDFMes) chartIDFMes.resize();
+    });
+
+    /* =========================================================
+       MENU LATERAL - NAVEGAÇÃO
+       ========================================================= */
+    document.getElementById("btnMenuTabela")?.addEventListener("click", abrirTabela);
+    document.getElementById("btnMenuDashboard")?.addEventListener("click", abrirDashboard);
+    document.getElementById("btnMenuIDF")?.addEventListener("click", abrirCadastroObras);
+
+    /* =========================================================
+       INIT
+       ========================================================= */
+    montarListaFiltroColunas();
+    aplicarVisibilidadeColunas();
+    checarSessaoInicial();
+
+
+/* =========================================================
+   DETALHES DA OBRA (JSONB em obras_cadastro.detalhes)
+   ========================================================= */
+let obraDetalhesAbertaId = null;
+
+const CAMPOS_DETALHES = [
+
+// Identificação completa (tudo em uma linha)
+{ sec:"Identificação", key:"modelo", label:"Modelo" },
+{ sec:"Identificação", key:"programa", label:"Programa" },
+{ sec:"Identificação", key:"metodologia_construtiva", label:"Metodologia Construtiva" },
+{ sec:"Identificação", key:"projeto_padrao", label:"Projeto Padrão" },
+{ sec:"Identificação", key:"vgv", label:"VGV" },
+{ sec:"Identificação", key:"area_equivalente", label:"Área Equivalente" },
+{ sec:"Identificação", key:"uh", label:"UH" },
+{ sec:"Identificação", key:"classe", label:"Classe" },
+
+
+  // Prazos (dias)
+  { sec:"Prazos (dias)", key:"prazo_contratual_dias", label:"Prazo Contratual (dias)" },
+  { sec:"Prazos (dias)", key:"prazo_decorrido_dias", label:"Prazo Decorrido (dias)" },
+  { sec:"Prazos (dias)", key:"nucleo_responsavel", label:"Núcleo Responsável" },
+  { sec:"Prazos (dias)", key:"status_caixa", label:"Status Caixa" },
+
+
+  // Pessoas / Responsáveis
+  { sec:"Responsáveis", key:"gerente_obras", label:"Gerente de Obras" },
+  { sec:"Responsáveis", key:"coordenador_obras", label:"Coordenador de Obras" },
+  { sec:"Responsáveis", key:"gestor_obra", label:"Gestor de Obra" },
+
+  // Caixa / Comercial / Contrato
+  { sec:"Caixa / Comercial", key:"lancamento_comercial", label:"Lançamento Comercial" },
+  { sec:"Caixa / Comercial", key:"duracao", label:"Duração" },
+  { sec:"Caixa / Comercial", key:"prazo_contrato", label:"Prazo de Contrato" },
+  { sec:"Caixa / Comercial", key:"prazo_carencia", label:"Prazo com Carência" },
+
+  { sec:"Caixa / Comercial", key:"assinatura_caixa", label:"Assinatura (Caixa)" },
+  { sec:"Caixa / Comercial", key:"duracao_caixa", label:"Duração (Caixa)" },
+  { sec:"Caixa / Comercial", key:"prazo_contrato_caixa", label:"Prazo de Contrato (Caixa)" },
+  { sec:"Caixa / Comercial", key:"prazo_carencia_caixa", label:"Prazo com Carência (Caixa)" },
+
+
+  // Execução (datas)
+  { sec:"Cronograma (datas)", key:"projeto_executivo", label:"Projeto Executivo" },
+  { sec:"Cronograma (datas)", key:"orcamento_executivo", label:"Orçamento Executivo" },
+  { sec:"Cronograma (datas)", key:"prazo_obra", label:"Prazo de Obra" },
+  { sec:"Cronograma (datas)", key:"inicio_obra", label:"Início de Obra" },
+
+  { sec:"Cronograma (datas)", key:"inicio_fundacoes", label:"Início Fundações" },
+  { sec:"Cronograma (datas)", key:"tendencia_termino_obra", label:"Tendência Término de Obra" },
+  { sec:"Cronograma (datas)", key:"tendencia_termino_previsao", label:"Tendência Término Previsão" },
+
+
+  // Apartamento modelo
+  { sec:"Apartamento Modelo", key:"inicio_apto_modelo", label:"Início Apto Modelo" },
+  { sec:"Apartamento Modelo", key:"termino_apto_modelo", label:"Término Apto Modelo" },
+
+  // Marcos CVCO / Vistorias
+  { sec:"CVCO / Vistorias", key:"cnd_inss_inicio_cvco", label:"CND INSS / Início CVCO (80% Obra)" },
+  { sec:"CVCO / Vistorias", key:"vistoria_conces_bomb_qualid", label:"Vistoria Conces. e Bomb. e Qualidade (90% Obra)" },
+  { sec:"CVCO / Vistorias", key:"inicio_vistorias_clientes", label:"Início Vistorias Clientes" },
+  { sec:"CVCO / Vistorias", key:"cvco_emitido", label:"CVCO Emitido (Término + 60d)" },
+
+  { sec:"CVCO / Vistorias", key:"individualizacao", label:"Individualização (CVCO + 45d)" },
+  { sec:"CVCO / Vistorias", key:"chave_clientes", label:"Chave Clientes" },
+
+
+  // Indicadores / Datas
+  { sec:"Indicadores", key:"obras_hoje", label:"Obras Hoje" },
+  { sec:"Indicadores", key:"mes_base", label:"Mês Base" },
+  { sec:"Indicadores", key:"obra_concluida", label:"Obra Concluída" },
+  { sec:"Indicadores", key:"area_construida", label:"Área Construída" },
+  { sec:"Indicadores", key:"cvco", label:"CVCO" },
+  { sec:"Indicadores", key:"rae_100", label:"RAE 100%" },
+  { sec:"Indicadores", key:"inspecao_qualidade", label:"Inspeção Qualidade" },
+  { sec:"Indicadores", key:"data_cvco", label:"Data – CVCO" },
+  { sec:"Indicadores", key:"data_rae_100", label:"Data RAE 100%" },
+  { sec:"Indicadores", key:"data_inspecao_qualidade", label:"Data Inspeção Qualidade" },
+  { sec:"Indicadores", key:"data_vistoria_cliente", label:"Data Vistoria Cliente/Entrega de chaves" },
+
+  // Planejamento (FUP/PC/Janela)
+  { sec:"Planejamento", key:"nome_obra_fup", label:"Nome Obra" },
+  { sec:"Planejamento", key:"inicio_fup", label:"Início – FUP" },
+  { sec:"Planejamento", key:"termino_fup", label:"Término – FUP" },
+  { sec:"Planejamento", key:"inicio_pc", label:"Início – PC" },
+  { sec:"Planejamento", key:"termino_pc", label:"Término – PC" },
+  { sec:"Planejamento", key:"inicio_janela_solic", label:"Início - Janela de Solicitação" },
+  { sec:"Planejamento", key:"termino_janela_solic", label:"Término - Janela de Solicitação" },
+
+  // Integrações
+  { sec:"Integrações", key:"pcp", label:"PCP" },
+  { sec:"Integrações", key:"filial_mega", label:"Filial MEGA" },
+  { sec:"Integrações", key:"projeto_mega", label:"Projeto MEGA" },
+  { sec:"Integrações", key:"orcamento_executivo_mega", label:"Orçamento Executivo (MEGA)" },
+];
+
+function _escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function abrirDetalhesObra(obraId){
+  const obra = (obrasCache || []).find(o => o.obra_id === obraId);
+  if(!obra){ alert("Obra não encontrada no cache."); return; }
+
+  obraDetalhesAbertaId = obraId;
+
+  const sub = document.getElementById("detalhesObraSub");
+  if(sub){
+    const idMostrar = (obra.id_manual !== null && obra.id_manual !== undefined && obra.id_manual !== "")
+      ? formatarIdManual(obra.id_manual)
+      : (obra.obra_id ?? "");
+    const cidade = (obra.cidade ?? "").trim();
+    const regional = (obra.regional ?? "").trim();
+
+    sub.textContent = `${idMostrar} | ${obra.nome_obra ?? ""} | ${cidade || "-"} | ${regional || "-"}`;
+
+  }
+
+  const detalhes = obra.detalhes || {};
+  const body = document.getElementById("detalhesObraBody");
+  if(!body) return;
+
+  // agrupa por seção
+  const porSec = new Map();
+  CAMPOS_DETALHES.forEach(f => {
+    if(!porSec.has(f.sec)) porSec.set(f.sec, []);
+    porSec.get(f.sec).push(f);
+  });
+
+ body.innerHTML = "";
+
+  porSec.forEach((campos, sec) => {
+    const box = document.createElement("div");
+box.className = "detSection";
+
+// ✅ Identificação com 8 colunas (uma linha), outros ficam normal
+
+const gridClass =
+  (
+    sec === "Identificação" ||
+    sec === "Prazos (dias)" ||
+    sec === "Responsáveis" ||
+    sec === "Caixa / Comercial" ||
+    sec === "Cronograma (datas)" ||
+    sec === "CVCO / Vistorias" ||
+    sec === "Indicadores" ||
+    sec === "Planejamento" ||
+    sec === "Integrações"
+  )
+    ? "detGrid detGrid8"
+    : "detGrid";
+
+
+box.innerHTML = `
+  <div class="detSectionTitle">${_escapeHtml(sec)}</div>
+  <div class="${gridClass}"></div>
+`;
+
+const grid = box.querySelector(".detGrid"); // pega a div do grid
+
+
+    campos.forEach(c => {
+      const val = (detalhes && detalhes[c.key] !== undefined) ? detalhes[c.key] : "";
+      const div = document.createElement("div");
+      div.className = "detField";
+      div.innerHTML = `
+        <label>${_escapeHtml(c.label)}</label>
+        <input type="text" data-det-key="${_escapeHtml(c.key)}" value="${_escapeHtml(val)}" />
+      `;
+      grid.appendChild(div);
+    });
+
+    body.appendChild(box);
+  });
+
+  document.getElementById("detalhesObraOverlay").style.display = "flex";
+}
+
+window.abrirDetalhesObra = abrirDetalhesObra;
+
+
+function fecharDetalhesObra(){
+  obraDetalhesAbertaId = null;
+  const ov = document.getElementById("detalhesObraOverlay");
+  if(ov) ov.style.display = "none";
+}
+
+function confirmarFechamentoDetalhes(){
+  const ok = confirm("Tem certeza que deseja encerrar sem salvar?");
+  if(ok){
+    fecharDetalhesObra();
+  }
+}
+
+window.confirmarFechamentoDetalhes = confirmarFechamentoDetalhes;
+
+window.fecharDetalhesObra = fecharDetalhesObra;
+
+async function salvarDetalhesObra(){
+  if(!obraDetalhesAbertaId){ fecharDetalhesObra(); return; }
+
+  const body = document.getElementById("detalhesObraBody");
+  if(!body) return;
+
+  const inputs = Array.from(body.querySelectorAll("[data-det-key]"));
+  const obj = {};
+  inputs.forEach(inp => {
+    const k = inp.getAttribute("data-det-key");
+    obj[k] = (inp.value || "").trim();
+  });
+
+  const { error } = await window.supabaseClient
+    .from("obras_cadastro")
+    .update({ detalhes: obj })
+    .eq("obra_id", obraDetalhesAbertaId);
+
+  if(error){
+    console.error(error);
+    alert("Erro ao salvar detalhes. Verifique se você criou a coluna JSONB 'detalhes' no Supabase.");
+    return;
+  }
+
+  // atualiza cache local e UI
+  const idx = (obrasCache || []).findIndex(o => o.obra_id === obraDetalhesAbertaId);
+  if(idx >= 0) obrasCache[idx].detalhes = obj;
+
+  fecharDetalhesObra();
+  alert("Detalhes salvos com sucesso!");
+}
+window.salvarDetalhesObra = salvarDetalhesObra;
+
+/* =========================================================
+   ✅ RESUMO AUTOMÁTICO (GRATUITO - SEM IA EXTERNA)
+   ========================================================= */
+
+function coletarDetalhesDaTela(){
+  const body = document.getElementById("detalhesObraBody");
+  if(!body) return { cabecalho: "", dados: {} };
+
+  // cabeçalho que você já monta no sub do modal
+  const sub = document.getElementById("detalhesObraSub");
+  const cabecalho = (sub?.textContent || "").trim();
+
+  const inputs = Array.from(body.querySelectorAll("[data-det-key]"));
+  const dados = {};
+  inputs.forEach(inp => {
+    const k = inp.getAttribute("data-det-key");
+    dados[k] = (inp.value || "").trim();
+  });
+
+  return { cabecalho, dados };
+}
+
+function _pegar(dados, key){
+  const v = (dados?.[key] || "").trim();
+  return v ? v : "";
+}
+
+function gerarResumoObraLocal(){
+  const { cabecalho, dados } = coletarDetalhesDaTela();
+
+  // principais campos (você pode ajustar depois)
+  const modelo = _pegar(dados, "modelo");
+  const programa = _pegar(dados, "programa");
+  const metodologia = _pegar(dados, "metodologia_construtiva");
+  const vgv = _pegar(dados, "vgv");
+  const areaEq = _pegar(dados, "area_equivalente");
+  const uh = _pegar(dados, "uh");
+  const classe = _pegar(dados, "classe");
+
+  const gerente = _pegar(dados, "gerente_obras");
+  const coord = _pegar(dados, "coordenador_obras");
+  const gestor = _pegar(dados, "gestor_obra");
+
+  const inicioObra = _pegar(dados, "inicio_obra");
+  const prazoObra = _pegar(dados, "prazo_obra");
+  const tendenciaTermino = _pegar(dados, "tendencia_termino_obra");
+
+  const statusCaixa = _pegar(dados, "status_caixa");
+  const prazoContratual = _pegar(dados, "prazo_contratual_dias");
+  const prazoDecorrido = _pegar(dados, "prazo_decorrido_dias");
+
+  // monta o texto (bem “resumo executivo”)
+  let texto = "";
+
+  if (cabecalho) texto += `OBRA: ${cabecalho}\n\n`;
+
+  texto += "📌 VISÃO GERAL\n";
+  if (modelo) texto += `• Modelo: ${modelo}\n`;
+  if (programa) texto += `• Programa: ${programa}\n`;
+  if (metodologia) texto += `• Metodologia construtiva: ${metodologia}\n`;
+  if (classe) texto += `• Classe: ${classe}\n`;
+  if (uh) texto += `• UH: ${uh}\n`;
+  if (areaEq) texto += `• Área equivalente: ${areaEq}\n`;
+  if (vgv) texto += `• VGV: ${vgv}\n`;
+
+  texto += "\n👥 RESPONSÁVEIS\n";
+  if (gerente) texto += `• Gerente de Obras: ${gerente}\n`;
+  if (coord) texto += `• Coordenador de Obras: ${coord}\n`;
+  if (gestor) texto += `• Gestor de Obra: ${gestor}\n`;
+
+  texto += "\n📅 PRAZOS / CRONOGRAMA\n";
+  if (inicioObra) texto += `• Início da obra: ${inicioObra}\n`;
+  if (prazoObra) texto += `• Prazo de obra: ${prazoObra}\n`;
+  if (tendenciaTermino) texto += `• Tendência término: ${tendenciaTermino}\n`;
+  if (prazoContratual) texto += `• Prazo contratual (dias): ${prazoContratual}\n`;
+  if (prazoDecorrido) texto += `• Prazo decorrido (dias): ${prazoDecorrido}\n`;
+  if (statusCaixa) texto += `• Status caixa: ${statusCaixa}\n`;
+
+  if (!texto.trim()) texto = "Preencha alguns campos e clique em “Gerar resumo”.";
+
+  const ta = document.getElementById("txtResumoObra");
+  if (ta) ta.value = texto;
+}
+
+function copiarResumoObra(){
+  const ta = document.getElementById("txtResumoObra");
+  if(!ta) return;
+
+  const txt = (ta.value || "").trim();
+  if(!txt){
+    alert("Nenhum resumo para copiar. Clique em “Gerar resumo” primeiro.");
+    return;
+  }
+
+  navigator.clipboard.writeText(txt)
+    .then(() => alert("Resumo copiado!"))
+    .catch(() => {
+      // fallback simples
+      ta.select();
+      document.execCommand("copy");
+      alert("Resumo copiado!");
+    });
+}
+
+
+/* =========================================================
+   EXPORTAÇÕES (Excel)
+   ========================================================= */
+function exportarDetalhesExcel(){
+  const body = document.getElementById("detalhesObraBody");
+  if (!body) return;
+
+  if (!window.XLSX) {
+    alert("XLSX não carregou. Confira se existe o script xlsx.full.min.js no HTML.");
+    return;
+  }
+
+  const linhas = [];
+
+  // percorre cada seção
+  body.querySelectorAll(".detSection").forEach(sec => {
+    const titulo = sec.querySelector(".detSectionTitle")?.innerText || "";
+
+    // título da seção
+    linhas.push([titulo, ""]);
+
+    // campos da seção
+    sec.querySelectorAll(".detField").forEach(field => {
+      const label = field.querySelector("label")?.innerText || "";
+      const valor = field.querySelector("input, select, textarea")?.value || "";
+      linhas.push([label, valor]);
+    });
+
+    // linha em branco
+    linhas.push(["", ""]);
+  });
+
+  // XLSX "bonito": Campo | Valor
+  const ws = XLSX.utils.aoa_to_sheet([["Campo", "Valor"], ...linhas]);
+
+  // largura das colunas
+  ws["!cols"] = [{ wch: 45 }, { wch: 70 }];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ficha da Obra");
+  XLSX.writeFile(wb, "ficha-obra.xlsx");
+}
+window.exportarDetalhesExcel = exportarDetalhesExcel;
+
+
+
+async function exportarDetalhesPDF(){
+  const box = document.querySelector(".detalhesObraBox");
+  if(!box) return;
+
+  if(!window.html2canvas){
+    alert("html2canvas não carregou. Confira os scripts no final do HTML.");
+    return;
+  }
+  if(!window.jspdf){
+    alert("jsPDF não carregou. Confira os scripts no final do HTML.");
+    return;
+  }
+
+  const canvas = await html2canvas(box, { scale: 2, useCORS: true });
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p","mm","a4");
+
+  const pageW = 210;
+  const pageH = 297;
+
+  const imgW = pageW;
+  const imgH = canvas.height * imgW / canvas.width;
+
+  let y = 10;
+  pdf.addImage(imgData, "PNG", 0, y, imgW, imgH);
+
+  // se ficar grande, cria páginas
+  let alturaRestante = imgH;
+  while (alturaRestante > (pageH - 10)) {
+    alturaRestante -= (pageH - 10);
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, 10 - (imgH - alturaRestante), imgW, imgH);
+  }
+
+  pdf.save("ficha-obra.pdf");
+}
+window.exportarDetalhesPDF = exportarDetalhesPDF;
+
+/* =========================================================
+   ✅ MODAL RESUMO (AGORA GLOBAL)
+   ========================================================= */
+function abrirResumoModal(){
+  const ov = document.getElementById("resumoOverlay");
+  const ta = document.getElementById("txtResumoModal");
+  if (ta) ta.value = "";
+  if (ov) ov.style.display = "flex";
+}
+window.abrirResumoModal = abrirResumoModal;
+
+function fecharResumoModal(){
+  const ov = document.getElementById("resumoOverlay");
+  if (ov) ov.style.display = "none";
+}
+window.fecharResumoModal = fecharResumoModal;
+
+let resumoTypeTimer = null;
+let resumoTypeToken = 0;
+
+function digitarTextoNoTextarea(textareaEl, texto, velocidade = 10) {
+  if (!textareaEl) return;
+
+  // cancela animação anterior
+  if (resumoTypeTimer) clearInterval(resumoTypeTimer);
+  resumoTypeToken++;
+  const meuToken = resumoTypeToken;
+
+  textareaEl.value = "";
+  let i = 0;
+
+  resumoTypeTimer = setInterval(() => {
+    if (meuToken !== resumoTypeToken) {
+      clearInterval(resumoTypeTimer);
+      return;
+    }
+
+    i++;
+    textareaEl.value = texto.slice(0, i);
+
+    if (i >= texto.length) {
+      clearInterval(resumoTypeTimer);
+    }
+  }, velocidade);
+}
+
+function gerarResumoParaModal(){
+  const ta = document.getElementById("txtResumoModal");
+  if(!ta) return;
+
+  const { cabecalho, dados } = coletarDetalhesDaTela();
+
+  function pegar(key){
+    const v = (dados?.[key] || "").trim();
+    return v ? v : "";
+  }
+
+  const modelo = pegar("modelo");
+  const programa = pegar("programa");
+  const metodologia = pegar("metodologia_construtiva");
+  const vgv = pegar("vgv");
+  const areaEq = pegar("area_equivalente");
+  const uh = pegar("uh");
+  const classe = pegar("classe");
+
+  const gerente = pegar("gerente_obras");
+  const coord = pegar("coordenador_obras");
+  const gestor = pegar("gestor_obra");
+
+  const inicioObra = pegar("inicio_obra");
+  const prazoObra = pegar("prazo_obra");
+  const tendenciaTermino = pegar("tendencia_termino_obra");
+
+  const statusCaixa = pegar("status_caixa");
+  const prazoContratual = pegar("prazo_contratual_dias");
+  const prazoDecorrido = pegar("prazo_decorrido_dias");
+
+  let texto = "";
+  if (cabecalho) texto += `OBRA: ${cabecalho}\n\n`;
+
+  texto += "📌 VISÃO GERAL\n";
+  if (modelo) texto += `• Modelo: ${modelo}\n`;
+  if (programa) texto += `• Programa: ${programa}\n`;
+  if (metodologia) texto += `• Metodologia construtiva: ${metodologia}\n`;
+  if (classe) texto += `• Classe: ${classe}\n`;
+  if (uh) texto += `• UH: ${uh}\n`;
+  if (areaEq) texto += `• Área equivalente: ${areaEq}\n`;
+  if (vgv) texto += `• VGV: ${vgv}\n`;
+
+  texto += "\n👥 RESPONSÁVEIS\n";
+  if (gerente) texto += `• Gerente de Obras: ${gerente}\n`;
+  if (coord) texto += `• Coordenador de Obras: ${coord}\n`;
+  if (gestor) texto += `• Gestor de Obra: ${gestor}\n`;
+
+  texto += "\n📅 PRAZOS / CRONOGRAMA\n";
+  if (inicioObra) texto += `• Início da obra: ${inicioObra}\n`;
+  if (prazoObra) texto += `• Prazo de obra: ${prazoObra}\n`;
+  if (tendenciaTermino) texto += `• Tendência término: ${tendenciaTermino}\n`;
+  if (prazoContratual) texto += `• Prazo contratual (dias): ${prazoContratual}\n`;
+  if (prazoDecorrido) texto += `• Prazo decorrido (dias): ${prazoDecorrido}\n`;
+  if (statusCaixa) texto += `• Status caixa: ${statusCaixa}\n`;
+
+  if (!texto.trim()) texto = "Preencha alguns campos da ficha e clique em “Gerar resumo”.";
+
+  // ✨ efeito digitando
+  digitarTextoNoTextarea(ta, texto, 8);
+}
+window.gerarResumoParaModal = gerarResumoParaModal;
+
+function copiarResumoModal(){
+  const ta = document.getElementById("txtResumoModal");
+  if(!ta) return;
+
+  const txt = (ta.value || "").trim();
+  if(!txt){
+    alert("Nenhum resumo para copiar. Clique em “Gerar resumo” primeiro.");
+    return;
+  }
+
+  navigator.clipboard.writeText(txt)
+    .then(() => alert("Resumo copiado!"))
+    .catch(() => {
+      ta.select();
+      document.execCommand("copy");
+      alert("Resumo copiado!");
+    });
+}
+window.copiarResumoModal = copiarResumoModal;
+
+
+
+// NÃO fecha mais clicando fora
+document.getElementById("detalhesObraOverlay")?.addEventListener("click", (e) => {
+  if (e.target && e.target.id === "detalhesObraOverlay") {
+    // bloqueado de propósito
+  }
+});
+
+}); 
+</script>
+
+
+<!-- MODAL: DETALHES DA OBRA (cole antes do </body>) -->
+<div id="detalhesObraOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="detalhesObraTitulo">
+  <div class="detalhesObraBox">
+    <div class="detalhesObraHeader">
+      <div>
+        <h3 id="detalhesObraTitulo">Detalhes da Obra</h3>
+        <div class="sub" id="detalhesObraSub">—</div>
+      </div>
+
+      <button
+        class="detalhesObraClose"
+        type="button"
+        onclick="confirmarFechamentoDetalhes()"
+        aria-label="Fechar"
+        title="Fechar"
+      >✕</button>
+    </div>
+
+    <div class="detalhesObraBody" id="detalhesObraBody">
+      <!-- ✅ RESUMO (GRATUITO) -->
+      <div class="resumoBox" id="resumoBox">
+        <div class="resumoHeader">
+          <div class="resumoTitle">Resumo da ficha</div>
+
+          <div class="resumoActions">
+            <button class="btnResumo" type="button" onclick="gerarResumoObraLocal()">✨ Gerar resumo</button>
+            <button class="btnResumo" type="button" onclick="copiarResumoObra()">📋 Copiar</button>
+          </div>
+
+          <div id="detalhesCampos"></div>
+
+        </div>
+
+        <textarea
+          id="txtResumoObra"
+          readonly
+          placeholder="Clique em “Gerar resumo” para criar um resumo automático desta ficha..."
+        ></textarea>
+      </div>
+
+      <!-- (as seções e campos serão inseridos via JS aqui embaixo) -->
+    </div>
+
+    <div class="detalhesObraFooter">
+      <div class="detFooterLeft">
+        <button
+          class="btnDet btnIcon btnOnlyIcon"
+          type="button"
+          onclick="exportarDetalhesExcel()"
+          title="Exportar Excel"
+          aria-label="Exportar Excel"
+        >
+          <img src="excel.png" alt="Excel" class="btnIconImg">
+        </button>
+
+        <button
+          class="btnDet btnIcon btnOnlyIcon"
+          type="button"
+          onclick="exportarDetalhesPDF()"
+          title="Exportar PDF"
+          aria-label="Exportar PDF"
+        >
+          <img src="pdf.png" alt="PDF" class="btnIconImg">
+        </button>
+
+        <button
+          class="btnDet btnIcon btnOnlyIcon"
+          type="button"
+          onclick="abrirResumoModal()"
+          title="Resumo"
+          aria-label="Resumo"
+        >
+          <img src="resumo.png" alt="Resumo" class="btnIconImg">
+        </button>
+      </div>
+
+      <div class="detFooterRight">
+        <button class="btnDet" type="button" onclick="confirmarFechamentoDetalhes()">Cancelar</button>
+        <button class="btnDet btnDetPrim" type="button" onclick="salvarDetalhesObra()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RESUMO -->
+<div id="resumoOverlay" style="display:none;">
+  <div class="resumoModal">
+    <div class="resumoModalHeader">
+      <h3>Resumo da ficha</h3>
+      <button class="resumoModalClose" type="button" onclick="fecharResumoModal()">✕</button>
+    </div>
+
+    <div class="resumoModalBody">
+      <textarea id="txtResumoModal" readonly placeholder="Clique em “Gerar resumo”..."></textarea>
+    </div>
+
+    <div class="resumoModalFooter">
+      <button class="btnDet" type="button" onclick="gerarResumoParaModal()">✨ Gerar resumo</button>
+      <button class="btnDet" type="button" onclick="copiarResumoModal()">📋 Copiar</button>
+      <button class="btnDet btnDetPrim" type="button" onclick="fecharResumoModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
