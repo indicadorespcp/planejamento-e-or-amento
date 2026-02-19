@@ -1531,6 +1531,39 @@ input[type="radio"]{
   outline-offset: -2px;
 }
 
+/* ✅ Badge de status (canto superior direito da timeline) */
+#timelineWrap{
+  position: relative; /* referência pro badge */
+}
+
+.tlBadge{
+  position: absolute;
+  top: -26px;      /* ajusta fino se quiser */
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.10);
+  white-space: nowrap;
+}
+
+/* estados */
+.tlBadge.ok{
+  border-color: rgba(34,197,94,.35);
+  background: rgba(34,197,94,.10);
+}
+
+.tlBadge.run{
+  border-color: rgba(250,204,21,.40);
+  background: rgba(250,204,21,.12);
+}
 
 
   </style>
@@ -1811,7 +1844,11 @@ input[type="radio"]{
     </div>
 
     <div class="tlWrap" id="timelineWrap" style="display:none;">
+      <div class="tlBadge" id="tlBadge" style="display:none;"></div>
+
       <div class="tlMeta" id="tlMeta"></div>
+      
+
 
       <div class="tlBar">
         <div class="tlFill" id="tlFill"></div>
@@ -2514,6 +2551,27 @@ function renderTimelineDaObra(obra){
   const eLbl = document.getElementById("tlEndLbl");
 
   const det = obra?.detalhes || {};
+
+  /* ===== STATUS DA OBRA (badge) ===== */
+const badge = document.getElementById("tlBadge");
+
+if (badge){
+  const concluida =
+    det.obra_concluida === 1 ||
+    det.obra_concluida === "1" ||
+    det.obra_concluida === true ||
+    det.obra_concluida === "true";
+
+  if (concluida){
+    badge.className = "tlBadge ok";
+    badge.innerHTML = "✅ CONCLUÍDA";
+  }else{
+    badge.className = "tlBadge run";
+    badge.innerHTML = "🟡 EM ANDAMENTO";
+  }
+
+  badge.style.display = "inline-flex";
+}
 
   // ✅ pega primeiro "Início Fundações", se não tiver usa "Início de Obra"
   const dtInicio = _parseDataFlex(det.inicio_fundacoes) || _parseDataFlex(det.inicio_obra);
@@ -4350,3 +4408,4 @@ document.getElementById("detalhesObraOverlay")?.addEventListener("click", (e) =>
 
 </body>
 </html>
+
