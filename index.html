@@ -908,7 +908,6 @@
   position: relative; /* ← ISSO resolve o X */
 }
 
-
 .detalhesObraHeader h3{
   margin: 0;
   font-size: 25px;      /* ← aumenta a fonte */
@@ -1354,6 +1353,12 @@
   border-top: 1px solid #b3c9df;
 }
 
+/* ESCONDER KPIs IDA e IDF NO DASHBOARD */
+#dashboard .kpiCard {
+  display: none;
+}
+
+
 
   </style>
 </head>
@@ -1555,6 +1560,8 @@
             <div class="kpiValue" id="kpiIDF">0</div>
           </div>
         </div>
+
+        
 
         <div class="chartsGrid">
           <div class="chartCard">
