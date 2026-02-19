@@ -1501,10 +1501,10 @@ input[type="radio"]{
 .tlFill{
   height: 100%;
   width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #22c55e, #facc15, #ef4444);
-  transition: width .25s ease;
+  border-radius: inherit;
+  transition: width .6s ease, background .6s ease;
 }
+
 
 .tlToday{
   position: absolute;
@@ -2610,14 +2610,30 @@ if (badge){
   // cor final (conclusão)
   // - concluída: azul sólido
   // - não concluída: gradiente verde->amarelo->vermelho
-  if(fill){
-    fill.style.width = pct + "%";
-    if(concluida){
-      fill.style.background = "#2563eb"; // azul
-    }else{
-      fill.style.background = "linear-gradient(90deg, #22c55e, #facc15, #ef4444)";
-    }
+// ✅ meses restantes até o fim (regra por mês)
+function _mesesRestantes(agora, fim){
+  let m = (fim.getFullYear() - agora.getFullYear()) * 12 + (fim.getMonth() - agora.getMonth());
+  // se o dia do mês ainda não chegou, "tira" 1 mês (mais conservador)
+  if (fim.getDate() < agora.getDate()) m -= 1;
+  return m;
+}
+
+if(fill){
+  fill.style.width = pct + "%";
+
+  if(concluida){
+    fill.style.background = "#2563eb"; // azul
+  }else{
+    const mesesRest = _mesesRestantes(agora, dtFim);
+
+    // regras de cor por meses restantes
+    let cor = "#22c55e"; // verde (default)
+    if (mesesRest <= 4) cor = "#ef4444";      // vermelho
+    else if (mesesRest <= 6) cor = "#facc15"; // amarelo
+
+    fill.style.background = cor;
   }
+}
 
   // se passou do fim e não concluiu, deixa “vermelho sólido” (atraso)
   if(!concluida && hoje > fim && fill){
