@@ -23,13 +23,13 @@
 
     input, select {
 
-  input[type="checkbox"],
-  input[type="radio"]{
-  width: auto !important;
-  height: auto !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
+    input[type="checkbox"],
+    input[type="radio"]{
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    }
 
       margin: 5px 10px 10px 0;
       padding: 6px 8px;
@@ -844,8 +844,6 @@ input[type="radio"]{
     /* =========================================================
    PADRÃO VISUAL IGUAL À TABELA PRINCIPAL — CADASTRO DE OBRAS
    ========================================================= */
-
-
    
 /* Coluna do checkbox */
 
@@ -2116,7 +2114,7 @@ input[type="radio"]{
   /* =========================================================
    DROPDOWN genérico
    ========================================================= */
-function configurarDropdown(wrapId, btnId, panelId, closeBtnId, focusInputId) {
+  function configurarDropdown(wrapId, btnId, panelId, closeBtnId, focusInputId) {
   const wrap = document.getElementById(wrapId);
   const btn = document.getElementById(btnId);
   const panel = document.getElementById(panelId);
@@ -2819,9 +2817,6 @@ if (chk) {
   });
 }
 
-
-  
-
     async function excluirObra(obraId){
       if (!confirm("Tem certeza que deseja excluir esta obra?")) return;
 
@@ -3417,6 +3412,11 @@ if (chk) {
       if(!inp) return;
       inp.type = (inp.type === "password") ? "text" : "password";
     }
+
+    window.toggleSenha = toggleSenha;
+    window.toggleNovaSenha = toggleNovaSenha;
+    window.toggleConfirmarSenha = toggleConfirmarSenha;
+
 
     document.getElementById("btnEsqueciSenha")?.addEventListener("click", async () => {
       const email = (document.getElementById("loginEmail")?.value || "").trim();
