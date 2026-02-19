@@ -1358,15 +1358,41 @@
   display: none;
 }
 
+/* garante que a faixa seja referência */
+.header-faixa {
+  position: relative;
+}
+
+/* botão Power BI */
+.btn-powerbi {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* imagem do Power BI */
+.btn-powerbi img {
+  height: 32px;      /* ajuste fino se quiser */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* efeito hover (opcional, mas bonito) */
+.btn-powerbi:hover img {
+  transform: scale(1.1);
+  opacity: 0.9;
+}
+
+
 
 
   </style>
 </head>
 <body>
-
-
-
-
 
   <!-- MENU LATERAL -->
   <div id="sideMenu" style="display:none;">
@@ -1443,10 +1469,15 @@
 
   <div id="app" style="display:none;">
     <div class="header-faixa">
-      <div class="header-conteudo">
-        <img src="pride_logo.png" alt="Logo Pride" class="logo-pride" />
-      </div>
-    </div>
+  <div class="header-conteudo">
+    <img src="pride_logo.png" alt="Logo Pride" class="logo-pride" />
+
+    <a href="#" class="btn-powerbi" title="Abrir Power BI">
+      <img src="powerbi.png" alt="Power BI">
+    </a>
+  </div>
+</div>
+
 
     <div id="conteudoSistema">
       <h2 style="margin-bottom:6px;">Planejamento e Orçamento</h2>
