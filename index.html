@@ -1850,7 +1850,7 @@ input[type="radio"]{
       
 
 
-      <div class="tlBar">
+      <div class="tlBar" id="tlBar">
         <div class="tlFill" id="tlFill"></div>
         <div class="tlToday" id="tlToday" title="Hoje"></div>
       </div>
@@ -2621,17 +2621,29 @@ function _mesesRestantes(agora, fim){
 if(fill){
   fill.style.width = pct + "%";
 
+  const tlBar = document.getElementById("tlBar");
+
   if(concluida){
     fill.style.background = "#2563eb"; // azul
+    if(tlBar) tlBar.title = "🔵 Concluída";
   }else{
     const mesesRest = _mesesRestantes(agora, dtFim);
 
     // regras de cor por meses restantes
     let cor = "#22c55e"; // verde (default)
-    if (mesesRest <= 4) cor = "#ef4444";      // vermelho
-    else if (mesesRest <= 6) cor = "#facc15"; // amarelo
+    let msg = "🟢 Dentro do prazo";
+
+    if (mesesRest <= 4){
+      cor = "#ef4444";
+      msg = "🔴 Faltando até 4 meses";
+    }
+    else if (mesesRest <= 6){
+      cor = "#facc15";
+      msg = "🟡 Faltando 6–5 meses";
+    }
 
     fill.style.background = cor;
+    if(tlBar) tlBar.title = msg;
   }
 }
 
