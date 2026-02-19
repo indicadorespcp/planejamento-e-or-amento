@@ -22,6 +22,15 @@
     h3 { font-size: 14px; margin-bottom: 6px; color: #222; }
 
     input, select {
+
+  input[type="checkbox"],
+  input[type="radio"]{
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
       margin: 5px 10px 10px 0;
       padding: 6px 8px;
       width: 180px;
@@ -31,6 +40,15 @@
       height: 35px;
       box-sizing: border-box;
     }
+
+    /* ✅ NÃO deixar o estilo geral “estourar” checkbox/radio */
+input[type="checkbox"],
+input[type="radio"]{
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
 
     button {
       padding: 6px 12px;
@@ -827,50 +845,93 @@
    PADRÃO VISUAL IGUAL À TABELA PRINCIPAL — CADASTRO DE OBRAS
    ========================================================= */
 
-  #tabelaObras th:nth-child(1),
-  #tabelaObras td:nth-child(1){
-  width:50px;
-  text-align:center;
-  }
 
-  #tabelaObras th:nth-child(2),
-  #tabelaObras td:nth-child(2){
-  width:200px;
-  }
+   
+/* Coluna do checkbox */
 
-  #tabelaObras th:nth-child(4),
-  #tabelaObras td:nth-child(4){
-  width:77px;
-  text-align:center;
-  }
+#tabelaObras th:nth-child(1),
+#tabelaObras td:nth-child(1){
+  width: 28px;
+  text-align: center;
+}
 
-  #tabelaObras th:nth-child(5),
-  #tabelaObras td:nth-child(5){
-  width:80px;
-  text-align:center;
-  }
+#tabelaObras td:nth-child(1){
+  padding: 0 !important;
+}
 
-  /* mesmas cores da tabela principal */
+#tabelaObras .chkObra{
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer;
+  accent-color: #082A48;
+}
 
-  #tabelaObras tbody td:nth-child(1),
-  #tabelaObras tbody td:nth-child(2),
-  #tabelaObras tbody td:nth-child(3),
-  #tabelaObras tbody td:nth-child(4){
+
+/* COLUNA 2 = ID */
+
+/* Cabeçalho centralizado */
+#tabelaObras th:nth-child(2){
+  width: 200px;
+  text-align: center;
+}
+
+/* Conteúdo alinhado à esquerda */
+#tabelaObras td:nth-child(2){
+  width: 200px;
+  text-align: left;
+  padding-left: 10px;
+}
+
+/* COLUNA 3 = Nome */
+#tabelaObras th:nth-child(3),
+#tabelaObras td:nth-child(3){
+  width: 200px;
+}
+
+/* COLUNA 4 = Cidade */
+#tabelaObras th:nth-child(4),
+#tabelaObras td:nth-child(4){
+  width: 77px;
+  text-align: center;
+}
+
+/* COLUNA 5 = Regional */
+#tabelaObras th:nth-child(5),
+#tabelaObras td:nth-child(5){
+  width: 77px;
+  text-align: center;
+}
+
+/* COLUNA 6 = Ações */
+#tabelaObras th:nth-child(6),
+#tabelaObras td:nth-child(6){
+  width: 80px;
+  text-align: center;
+}
+
+/* mesmas cores da tabela principal (agora até a Regional = 5 colunas) */
+#tabelaObras tbody td:nth-child(1),
+#tabelaObras tbody td:nth-child(2),
+#tabelaObras tbody td:nth-child(3),
+#tabelaObras tbody td:nth-child(4),
+#tabelaObras tbody td:nth-child(5){
   background:#ccdce7;
-  }
+}
 
-  #tabelaObras thead th:nth-child(1),
-  #tabelaObras thead th:nth-child(2),
-  #tabelaObras thead th:nth-child(3),
-  #tabelaObras thead th:nth-child(4){
+#tabelaObras thead th:nth-child(1),
+#tabelaObras thead th:nth-child(2),
+#tabelaObras thead th:nth-child(3),
+#tabelaObras thead th:nth-child(4),
+#tabelaObras thead th:nth-child(5){
   background:#b3c9df;
-  }
+}
 
-  #tabelaObras tbody td:last-child,
-  #tabelaObras thead th:last-child{
+/* Ações continua sendo a última coluna */
+#tabelaObras tbody td:last-child,
+#tabelaObras thead th:last-child{
   background:#b3c9df;
   border-left:2px solid #c7cdd4;
-  }
+}
 
 
 /* ===== MODAL DETALHES OBRA ===== */
@@ -1204,7 +1265,6 @@
   flex-direction: column;
 }
 
-
 .resumoModalHeader{
   background: #082A48;
   color: #fff;
@@ -1241,7 +1301,6 @@
   flex: 1;
   display: flex;
 }
-
 
 /* ===== RESUMO EXECUTIVO (BONITO) ===== */
 .resumoPreview{
@@ -1387,6 +1446,90 @@
   opacity: 0.9;
 }
 
+/* ==============================
+   TIMELINE (Cadastro de Obras)
+   ============================== */
+.obraFormCardGrid{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.obraFormLeft{
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.obraFormTimeline{
+  flex: 1 1 auto;
+  border-left: 2px solid #c7d3df;
+  padding-left: 14px;
+  min-height: 70px;
+}
+
+.tlTitle{
+  font-size: 12px;
+  font-weight: 900;
+  color: #082A48;
+  margin-bottom: 6px;
+}
+
+.tlEmpty{
+  font-size: 12px;
+  color: #475569;
+}
+
+.tlMeta{
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.tlBar{
+  position: relative;
+  height: 14px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  border: 1px solid #cbd5e1;
+  overflow: hidden;
+}
+
+.tlFill{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, #facc15, #ef4444);
+  transition: width .25s ease;
+}
+
+.tlToday{
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 22px;
+  background: #111827;
+  opacity: .75;
+  left: 0%;
+}
+
+.tlLabels{
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+  color: #334155;
+}
+
+/* ✅ linha selecionada na tabela */
+#tabelaObras tbody tr.obraSelecionada{
+  outline: 2px solid rgba(124,58,237,.45);
+  outline-offset: -2px;
+}
 
 
 
@@ -1642,33 +1785,58 @@
       <div id="cadastroObras" style="display:none; margin-top:12px;">
 
         <!-- ✅ FORM CADASTRAR OBRA -->
-        <div class="obraFormCard">
-          <div class="obraFormTitle">Cadastrar Obra</div>
+        <div class="obraFormCard obraFormCardGrid">
+  <div class="obraFormLeft">
+    <div class="obraFormTitle">Cadastrar Obra</div>
 
-          <input type="number" id="obraIdManual" placeholder="ID (ex: 1)" style="width:110px;">
-          <input type="text" id="obraNome" placeholder="Nome da Obra" style="width:260px;">
-          <input type="text" id="obraCidade" placeholder="Cidade" style="width:160px;">
+    <input type="number" id="obraIdManual" placeholder="ID (ex: 1)" style="width:110px;">
+    <input type="text" id="obraNome" placeholder="Nome da Obra" style="width:260px;">
+    <input type="text" id="obraCidade" placeholder="Cidade" style="width:160px;">
 
-          <select id="obraRegional" style="width:170px;">
-            <option value="">Regional...</option>
-            <option value="Curitiba">Curitiba</option>
-            <option value="Londrina">Londrina</option>
-          </select>
+    <select id="obraRegional" style="width:170px;">
+      <option value="">Regional...</option>
+      <option value="Curitiba">Curitiba</option>
+      <option value="Londrina">Londrina</option>
+    </select>
 
-          <button class="btnSalvarObra" id="btnSalvarObra">Salvar Obra</button>
-        </div>
+    <button class="btnSalvarObra" id="btnSalvarObra">Salvar Obra</button>
+  </div>
 
+  <!-- ✅ TIMELINE (lado direito) -->
+  <div class="obraFormTimeline">
+    <div class="tlTitle">Linha do tempo da obra</div>
+
+    <div class="tlEmpty" id="tlEmptyMsg">
+      Clique em uma obra na tabela abaixo.
+    </div>
+
+    <div class="tlWrap" id="timelineWrap" style="display:none;">
+      <div class="tlMeta" id="tlMeta"></div>
+
+      <div class="tlBar">
+        <div class="tlFill" id="tlFill"></div>
+        <div class="tlToday" id="tlToday" title="Hoje"></div>
+      </div>
+
+      <div class="tlLabels">
+        <span id="tlStartLbl">—</span>
+        <span id="tlEndLbl">—</span>
+      </div>
+    </div>
+  </div>
+</div>
         <div class="tabela-card">
           <div class="tabela-wrap">
             <table id="tabelaObras">
               <thead>
-                <tr>
-                  <th style="width:20px;">ID</th>
-                  <th>Nome da Obra</th>
-                  <th style="width:77px;">Cidade</th>
-                  <th style="width:77px;">Regional</th>
-                  <th style="width:80px;">Ações</th>
-                </tr>
+              <tr>
+              <th style="width:50px;">ID</th>
+              <th>Nome da Obra</th>
+              <th style="width:77px;">Cidade</th>
+              <th style="width:77px;">Regional</th>
+              <th style="width:80px;">Ações</th>
+              <th style="width:40px;">Sel.</th>
+              </tr>
               </thead>
               <tbody></tbody>
             </table>
@@ -1705,6 +1873,7 @@
   <script>
 
   document.addEventListener("DOMContentLoaded", () => {
+
 
 
     /* =========================================================
@@ -2148,6 +2317,8 @@ document.getElementById("obraFilterSearch")?.addEventListener("input", montarLis
       aplicarVisibilidadeColunas();
     }
 
+
+
     /* =========================================================
        FILTRO GERAL
        ========================================================= */
@@ -2254,6 +2425,7 @@ document.getElementById("obraFilterSearch")?.addEventListener("input", montarLis
     let obrasCache = [];
     let obraEmEdicao = null;
     let contadorObrasTemp = 0;
+    let obraSelecionadaId = null;
 
     async function carregarObras() {
       const { data, error } = await window.supabaseClient
@@ -2271,6 +2443,197 @@ document.getElementById("obraFilterSearch")?.addEventListener("input", montarLis
       renderizarTabelaObras(obrasCache);
     }
 
+function _parseDataFlex(v){
+  const s0 = String(v ?? "").trim();
+  if(!s0) return null;
+
+  const s = s0.toUpperCase();
+
+  // aceita YYYY-MM
+  if(/^\d{4}-\d{2}$/.test(s)) return new Date(s + "-01T00:00:00");
+  // aceita YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + "T00:00:00");
+
+  // aceita MMM-YY (pt-br) ex: ABR-21, SET-23
+  const m = s.match(/^([A-ZÇ]{3})[-\/](\d{2}|\d{4})$/);
+  if(m){
+    const mesTxt = m[1];
+    const anoTxt = m[2];
+
+    const meses = {
+      JAN:0, FEV:1, MAR:2, ABR:3, MAI:4, JUN:5,
+      JUL:6, AGO:7, SET:8, OUT:9, NOV:10, DEZ:11
+    };
+
+    const mm = meses[mesTxt];
+    if(mm === undefined) return null;
+
+    let yy = Number(anoTxt);
+    if(String(anoTxt).length === 2){
+      yy = (yy <= 79) ? (2000 + yy) : (1900 + yy);
+    }
+
+    const d = new Date(yy, mm, 1);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // tenta Date normal
+  const d = new Date(s0);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function _fmtMesAno(d){
+  if(!d) return "—";
+  const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+  return `${meses[d.getMonth()]}-${d.getFullYear()}`;
+}
+
+function _boolConcluida(v){
+  const s0 = String(v ?? "").trim();
+  if(!s0) return false;
+
+  const s = s0.toUpperCase();
+
+  // aceita SIM / S / OK / TRUE / 1
+  if (s === "SIM" || s === "S" || s === "OK" || s === "TRUE" || s === "1") return true;
+
+  // aceita qualquer texto que contenha "CONCLUI"
+  // (pega "concluída", "concluida", "concluído", "concluido", etc)
+  if (s.includes("CONCLUI")) return true;
+
+  return false;
+}
+
+function renderTimelineDaObra(obra){
+  const wrap = document.getElementById("timelineWrap");
+  const empty = document.getElementById("tlEmptyMsg");
+  const meta = document.getElementById("tlMeta");
+  const fill = document.getElementById("tlFill");
+  const today = document.getElementById("tlToday");
+  const sLbl = document.getElementById("tlStartLbl");
+  const eLbl = document.getElementById("tlEndLbl");
+
+  const det = obra?.detalhes || {};
+
+  // ✅ pega primeiro "Início Fundações", se não tiver usa "Início de Obra"
+  const dtInicio = _parseDataFlex(det.inicio_fundacoes) || _parseDataFlex(det.inicio_obra);
+
+  // ✅ pega primeiro "Tendência Término Previsão", se não tiver usa "Tendência Término de Obra", se não tiver usa "Prazo de Obra"
+  const dtFim =
+  _parseDataFlex(det.tendencia_termino_previsao) ||
+  _parseDataFlex(det.tendencia_termino_obra) ||
+  _parseDataFlex(det.prazo_obra);
+
+
+  const concluida = _boolConcluida(det.obra_concluida);
+
+  if(!dtInicio || !dtFim){
+  // sem datas = não mostra barra
+  if(empty) empty.textContent = "Essa obra não tem 'Início Fundações' (ou Início de Obra) e/ou 'Tendência Término' (ou Tendência Previsão) preenchidos na ficha.";
+  if(empty) empty.style.display = "block";
+  if(wrap) wrap.style.display = "none";
+  return;
+  }
+
+
+  const agora = new Date();
+  const inicio = dtInicio.getTime();
+  const fim = dtFim.getTime();
+  const hoje = agora.getTime();
+
+  const total = Math.max(1, fim - inicio);
+  const decorrido = Math.min(Math.max(hoje - inicio, 0), total);
+  const pct = Math.round((decorrido / total) * 100);
+
+  // posição do marcador "Hoje"
+  const pctHoje = Math.round(((hoje - inicio) / total) * 100);
+  const pctHojeClamped = Math.min(Math.max(pctHoje, 0), 100);
+
+  // cor final (conclusão)
+  // - concluída: azul sólido
+  // - não concluída: gradiente verde->amarelo->vermelho
+  if(fill){
+    fill.style.width = pct + "%";
+    if(concluida){
+      fill.style.background = "#2563eb"; // azul
+    }else{
+      fill.style.background = "linear-gradient(90deg, #22c55e, #facc15, #ef4444)";
+    }
+  }
+
+  // se passou do fim e não concluiu, deixa “vermelho sólido” (atraso)
+  if(!concluida && hoje > fim && fill){
+    fill.style.background = "#ef4444";
+    fill.style.width = "100%";
+  }
+
+  if(today) today.style.left = pctHojeClamped + "%";
+
+  if(meta){
+    const nome = obra?.nome_obra || "";
+    const id = (obra?.id_manual ?? "");
+    meta.textContent = `Obra selecionada: ${id ? String(id).padStart(3,"0") + " - " : ""}${nome}`;
+  }
+
+  if(sLbl) sLbl.textContent = _fmtMesAno(dtInicio);
+  if(eLbl) eLbl.textContent = _fmtMesAno(dtFim);
+
+  if(empty) empty.style.display = "none";
+  if(wrap) wrap.style.display = "block";
+}
+
+function limparTimeline(){
+  const wrap = document.getElementById("timelineWrap");
+  const empty = document.getElementById("tlEmptyMsg");
+
+  // tira destaque das linhas
+  document.querySelectorAll("#tabelaObras tbody tr").forEach(x => x.classList.remove("obraSelecionada"));
+
+  if(empty){
+    empty.textContent = "Marque uma obra no quadradinho para ver a linha do tempo.";
+    empty.style.display = "block";
+  }
+  if(wrap) wrap.style.display = "none";
+}
+
+function bindCliqueLinhaTabelaObras(){
+  const tbody = document.querySelector("#tabelaObras tbody");
+  if(!tbody) return;
+
+  // agora é POR CHECKBOX (não mais por clique na linha)
+  tbody.addEventListener("change", (e) => {
+    const chk = e.target.closest('input[type="checkbox"].obraPick');
+    if(!chk) return;
+
+    const tr = chk.closest('tr[data-obra-id]');
+    if(!tr) return;
+
+    // deixa só 1 marcada (tipo rádio)
+    tbody.querySelectorAll('input[type="checkbox"].obraPick').forEach(c => {
+      if(c !== chk) c.checked = false;
+    });
+
+    // limpa destaque
+    tbody.querySelectorAll("tr").forEach(x => x.classList.remove("obraSelecionada"));
+
+    if(!chk.checked){
+      limparTimeline();
+      return;
+    }
+
+    // destaca a linha marcada
+    tr.classList.add("obraSelecionada");
+
+    const obraId = Number(tr.getAttribute("data-obra-id"));
+    const obra = (obrasCache || []).find(o => Number(o.obra_id) === obraId);
+    if(obra) renderTimelineDaObra(obra);
+  });
+}
+
+bindCliqueLinhaTabelaObras();
+
+
+
 function renderizarTabelaObras(lista) {
   const tbody = document.querySelector("#tabelaObras tbody");
   if (!tbody) return;
@@ -2285,44 +2648,88 @@ function renderizarTabelaObras(lista) {
     const tr = document.createElement("tr");
     tr.setAttribute("data-obra-id", obra.obra_id);
 
-    tr.innerHTML = `
-      <td style="text-align:center;">${idMostrar}</td>
-      <td>${_escapeHtml(obra.nome_obra ?? "")}</td>
-      <td>${_escapeHtml(obra.cidade ?? "")}</td>
-      <td style="text-align:center;">${_escapeHtml(obra.regional ?? "")}</td>
-      <td class="tdAcoes">
-        <div class="acoesWrap">
-          <button class="btnAcao btnEditar" onclick="window.editarObra(${obra.obra_id})" title="Editar">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"></path>
-              <path d="M20.71 7.04a1.0 1.0 0 0 0 0-1.41L18.37 3.29a1.0 1.0 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
-            </svg>
-          </button>
+tr.innerHTML = `
+  <td style="text-align:center;">${idMostrar}</td>
+  <td>${_escapeHtml(obra.nome_obra ?? "")}</td>
+  <td>${_escapeHtml(obra.cidade ?? "")}</td>
+  <td style="text-align:center;">${_escapeHtml(obra.regional ?? "")}</td>
 
-          <button class="btnAcao btnExcluir" onclick="window.excluirObra(${obra.obra_id})" title="Excluir">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 7h12l-1 14H7L6 7z"></path>
-              <path d="M9 4h6l1 2H8l1-2z"></path>
-            </svg>
-          </button>
+  <td class="tdAcoes">
+    <div class="acoesWrap">
+      <button class="btnAcao btnEditar" onclick="window.editarObra(${obra.obra_id})" title="Editar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"></path>
+          <path d="M20.71 7.04a1.0 1.0 0 0 0 0-1.41L18.37 3.29a1.0 1.0 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+        </svg>
+      </button>
 
-          <button class="btnAcao btnDetalhes" onclick="window.abrirDetalhesObra(${obra.obra_id})" title="Detalhes">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 .001-16.001A8 8 0 0 1 12 20z"></path>
-              <path d="M11 10h2v7h-2v-7zm0-3h2v2h-2V7z"></path>
-            </svg>
-          </button>
+      <button class="btnAcao btnExcluir" onclick="window.excluirObra(${obra.obra_id})" title="Excluir">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 7h12l-1 14H7L6 7z"></path>
+          <path d="M9 4h6l1 2H8l1-2z"></path>
+        </svg>
+      </button>
 
-          <button class="btnAcao btnAdicionar" onclick="window.adicionarObraAbaixo(${obra.obra_id})" title="Adicionar abaixo">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"></path>
-            </svg>
-          </button>
-        </div>
-      </td>
-    `;
+      <button class="btnAcao btnDetalhes" onclick="window.abrirDetalhesObra(${obra.obra_id})" title="Detalhes">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 .001-16.001A8 8 0 0 1 12 20z"></path>
+          <path d="M11 10h2v7h-2v-7zm0-3h2v2h-2V7z"></path>
+        </svg>
+      </button>
+
+      <button class="btnAcao btnAdicionar" onclick="window.adicionarObraAbaixo(${obra.obra_id})" title="Adicionar abaixo">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"></path>
+        </svg>
+      </button>
+    </div>
+  </td>
+
+  <!-- ✅ CHECKBOX AGORA NA DIREITA -->
+  <td style="text-align:center;">
+    <input
+      type="checkbox"
+      class="chkObraPick"
+      data-obra-id="${obra.obra_id}"
+      title="Selecionar obra"
+    />
+  </td>
+`;
 
     tbody.appendChild(tr);
+
+    // ✅ quando marcar o checkbox: desmarca os outros e atualiza timeline
+const chk = tr.querySelector(".chkObraPick");
+if (chk) {
+  chk.addEventListener("change", (e) => {
+    const marcado = e.target.checked;
+
+    // desmarca todos
+    tbody.querySelectorAll(".chkObraPick").forEach(x => x.checked = false);
+
+    if (marcado) {
+      // marca só esse
+      e.target.checked = true;
+
+      // destaque visual na linha (opcional, mantém sua classe)
+      tbody.querySelectorAll("tr").forEach(x => x.classList.remove("obraSelecionada"));
+      tr.classList.add("obraSelecionada");
+
+      // pega a obra e renderiza timeline
+      const obraId = Number(e.target.getAttribute("data-obra-id"));
+      const obraSel = (obrasCache || []).find(o => Number(o.obra_id) === obraId);
+      if (obraSel) renderTimelineDaObra(obraSel);
+    } else {
+      // se desmarcou, limpa timeline
+      tbody.querySelectorAll("tr").forEach(x => x.classList.remove("obraSelecionada"));
+      const empty = document.getElementById("tlEmptyMsg");
+      const wrap = document.getElementById("timelineWrap");
+      if (empty) { empty.textContent = "Clique no quadradinho para selecionar uma obra."; empty.style.display = "block"; }
+      if (wrap) wrap.style.display = "none";
+    }
+  });
+}
+
   });
 }
 
@@ -2396,6 +2803,9 @@ function renderizarTabelaObras(lista) {
       obraEmEdicao = null;
       renderizarTabelaObras(obrasCache);
     }
+
+
+
     window.cancelarEdicaoObra = cancelarEdicaoObra;
 
     async function salvarEdicaoObra(obraId){
@@ -2436,26 +2846,35 @@ function renderizarTabelaObras(lista) {
       tr.id = tempId;
 
       tr.innerHTML = `
-        <td><input type="number" data-field="id_manual" placeholder="ID" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
-        <td><input type="text" data-field="nome_obra" placeholder="Nome da Obra" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
-        <td><input type="text" data-field="cidade" placeholder="Cidade" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
-        <td>
-          <select data-field="regional" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
-            <option value="">Regional...</option>
-            <option value="Curitiba">Curitiba</option>
-            <option value="Londrina">Londrina</option>
-          </select>
-        </td>
-        <td class="tdAcoes">
-          <div class="acoesWrap">
-            <button class="btnAcao btnSalvar" onclick="salvarObraTemp('${tempId}')" title="Salvar">
-              <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
-            </button>
-            <button class="btnAcao btnCancelar" onclick="cancelarObraTemp('${tempId}')" title="Cancelar">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
-            </button>
-          </div>
-        </td>
+      <td style="text-align:center;">
+  <input type="checkbox" class="chkSelecionarObra">
+</td>
+
+<td><input type="number" data-field="id_manual" placeholder="ID" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+
+<td><input type="text" data-field="nome_obra" placeholder="Nome da Obra" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+
+<td><input type="text" data-field="cidade" placeholder="Cidade" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
+
+<td>
+  <select data-field="regional" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
+    <option value="">Regional...</option>
+    <option value="Curitiba">Curitiba</option>
+    <option value="Londrina">Londrina</option>
+  </select>
+</td>
+
+<td class="tdAcoes">
+  <div class="acoesWrap">
+    <button class="btnAcao btnSalvar" onclick="salvarObraTemp('${tempId}')" title="Salvar">
+      <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+    </button>
+    <button class="btnAcao btnCancelar" onclick="cancelarObraTemp('${tempId}')" title="Cancelar">
+      <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+    </button>
+  </div>
+</td>
+
       `;
 
       linhaRef.after(tr);
@@ -3478,11 +3897,17 @@ async function salvarDetalhesObra(){
   }
 
   // atualiza cache local e UI
-  const idx = (obrasCache || []).findIndex(o => o.obra_id === obraDetalhesAbertaId);
-  if(idx >= 0) obrasCache[idx].detalhes = obj;
+const idx = (obrasCache || []).findIndex(o => o.obra_id === obraDetalhesAbertaId);
+if(idx >= 0) obrasCache[idx].detalhes = obj;
 
-  fecharDetalhesObra();
-  alert("Detalhes salvos com sucesso!");
+// ✅ se essa obra é a selecionada, redesenha timeline agora
+if(idx >= 0 && obraSelecionadaId && Number(obraSelecionadaId) === Number(obraDetalhesAbertaId)){
+  renderTimelineDaObra(obrasCache[idx]);
+}
+
+fecharDetalhesObra();
+alert("Detalhes salvos com sucesso!");
+
 }
 window.salvarDetalhesObra = salvarDetalhesObra;
 
