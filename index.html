@@ -841,73 +841,79 @@ input[type="radio"]{
     .btnSalvar svg{ fill: #16a34a; }   /* verde */
     .btnCancelar svg{ fill: #ef4444; } /* vermelho */
 
-    /* =========================================================
-   PADRÃO VISUAL IGUAL À TABELA PRINCIPAL — CADASTRO DE OBRAS
+/* =========================================================
+   ✅ TABELA OBRAS — AJUSTE DE LAYOUT (STATUS / AÇÕES / SEL)
    ========================================================= */
-   
-/* Coluna do checkbox */
 
+#tabelaObras{
+  width: 100%;
+  table-layout: auto; /* <<< isso aqui é o que resolve o "vazio" */
+}
+
+/* células */
+#tabelaObras th, 
+#tabelaObras td{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* larguras por coluna (ID, NOME, CIDADE, REGIONAL, STATUS, AÇÕES, SEL) */
 #tabelaObras th:nth-child(1),
 #tabelaObras td:nth-child(1){
-  width: 28px;
+  width: 60px;
   text-align: center;
 }
 
-#tabelaObras td:nth-child(1){
-  padding: 0 !important;
-}
-
-#tabelaObras .chkObra{
-  width: 18px !important;
-  height: 18px !important;
-  cursor: pointer;
-  accent-color: #082A48;
-}
-
-
-/* COLUNA 2 = ID */
-
-/* Cabeçalho centralizado */
-#tabelaObras th:nth-child(2){
-  width: 200px;
-  text-align: center;
-}
-
-/* Conteúdo alinhado à esquerda */
+#tabelaObras th:nth-child(2),
 #tabelaObras td:nth-child(2){
-  width: 200px;
-  text-align: left;
-  padding-left: 10px;
+  width: 260px;
 }
 
-/* COLUNA 3 = Nome */
 #tabelaObras th:nth-child(3),
 #tabelaObras td:nth-child(3){
-  width: 200px;
+  width: 140px;
+  text-align: center;
 }
 
-/* COLUNA 4 = Cidade */
 #tabelaObras th:nth-child(4),
 #tabelaObras td:nth-child(4){
-  width: 77px;
+  width: 110px;
   text-align: center;
 }
 
-/* COLUNA 5 = Regional */
+/* STATUS */
 #tabelaObras th:nth-child(5),
 #tabelaObras td:nth-child(5){
-  width: 77px;
+  width: 140px;
   text-align: center;
+  font-weight: 800;
 }
 
-/* COLUNA 6 = Ações */
+/* AÇÕES (não quebrar linha) */
 #tabelaObras th:nth-child(6),
 #tabelaObras td:nth-child(6){
-  width: 80px;
+  width: 150px;
   text-align: center;
 }
 
-/* mesmas cores da tabela principal (agora até a Regional = 5 colunas) */
+#tabelaObras .acoesWrap{
+  flex-wrap: nowrap !important;
+  gap: 6px;
+}
+
+#tabelaObras .btnAcao{
+  flex: 0 0 auto;
+}
+
+/* SEL (checkbox) */
+#tabelaObras th:nth-child(7),
+#tabelaObras td:nth-child(7){
+  width: 60px;
+  text-align: center;
+}
+
+/* cores iguais ao padrão */
 #tabelaObras tbody td:nth-child(1),
 #tabelaObras tbody td:nth-child(2),
 #tabelaObras tbody td:nth-child(3),
@@ -924,13 +930,19 @@ input[type="radio"]{
   background:#b3c9df;
 }
 
-/* Ações continua sendo a última coluna */
-#tabelaObras tbody td:last-child,
-#tabelaObras thead th:last-child{
+/* AÇÕES + SEL (lado direito com destaque leve) */
+#tabelaObras tbody td:nth-child(6),
+#tabelaObras thead th:nth-child(6),
+#tabelaObras tbody td:nth-child(7),
+#tabelaObras thead th:nth-child(7){
   background:#b3c9df;
-  border-left:2px solid #c7cdd4;
 }
 
+#tabelaObras th:nth-child(7),
+#tabelaObras td:nth-child(7){
+  width: 60px !important;
+  max-width: 60px !important;
+}
 
 /* ===== MODAL DETALHES OBRA ===== */
 #detalhesObraOverlay{
@@ -1863,17 +1875,18 @@ input[type="radio"]{
         <div class="tabela-card">
           <div class="tabela-wrap">
             <table id="tabelaObras">
-              <thead>
-              <tr>
-              <th style="width:50px;">ID</th>
-              <th>Nome da Obra</th>
-              <th style="width:77px;">Cidade</th>
-              <th style="width:77px;">Regional</th>
-              <th style="width:80px;">Ações</th>
-              <th style="width:40px;">Sel.</th>
-              </tr>
-              </thead>
-              <tbody></tbody>
+            <thead>
+            <tr>
+            <th style="width:50px;">ID</th>
+            <th>Nome da Obra</th>
+            <th style="width:77px;">Cidade</th>
+            <th style="width:77px;">Regional</th>
+            <th style="width:110px;">Status</th>
+            <th style="width:80px;">Ações</th>
+            <th style="width:40px;">Sel.</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
             </table>
           </div>
         </div>
@@ -2732,12 +2745,20 @@ function renderizarTabelaObras(lista) {
     const tr = document.createElement("tr");
     tr.setAttribute("data-obra-id", obra.obra_id);
 
+    const det = obra?.detalhes || {};
+    const statusTxt = _boolConcluida(det.obra_concluida) ? "✅ CONCLUÍDA" : "🟡 EM ANDAMENTO";
+
+
 tr.innerHTML = `
   <td style="text-align:center;">${idMostrar}</td>
   <td>${_escapeHtml(obra.nome_obra ?? "")}</td>
   <td>${_escapeHtml(obra.cidade ?? "")}</td>
   <td style="text-align:center;">${_escapeHtml(obra.regional ?? "")}</td>
 
+  <!-- ✅ STATUS -->
+  <td style="text-align:center; font-weight:800;">${statusTxt}</td>
+
+  <!-- ✅ AÇÕES (uma única coluna) -->
   <td class="tdAcoes">
     <div class="acoesWrap">
       <button class="btnAcao btnEditar" onclick="window.editarObra(${obra.obra_id})" title="Editar">
@@ -2769,7 +2790,7 @@ tr.innerHTML = `
     </div>
   </td>
 
-  <!-- ✅ CHECKBOX AGORA NA DIREITA -->
+  <!-- ✅ SEL. (checkbox) -->
   <td style="text-align:center;">
     <input
       type="checkbox"
@@ -4436,4 +4457,5 @@ document.getElementById("detalhesObraOverlay")?.addEventListener("click", (e) =>
 
 </body>
 </html>
+
 
