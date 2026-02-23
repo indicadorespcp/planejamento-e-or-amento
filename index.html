@@ -2552,6 +2552,58 @@ function _boolConcluida(v){
   return false;
 }
 
+function _mesesRestantes(agora, fim){
+  let m = (fim.getFullYear() - agora.getFullYear()) * 12 + (fim.getMonth() - agora.getMonth());
+  if (fim.getDate() < agora.getDate()) m -= 1; // mais conservador
+  return m;
+}
+
+function _statusTabelaObra(det){
+  const concluida = _boolConcluida(det?.obra_concluida);
+
+  // mesmo dtFim da timeline (usa seus campos reais)
+  const dtFim =
+    _parseDataFlex(det?.tendencia_termino_previsao) ||
+    _parseDataFlex(det?.tendencia_termino_obra) ||
+    _parseDataFlex(det?.prazo_obra);
+
+  const agora = new Date();
+
+  let statusTxt = "EM ANDAMENTO";
+  let statusBg  = "#e5e7eb";
+  let statusTitle = "";
+
+  if (concluida){
+    statusTxt = "CONCLUÍDA";
+    statusBg  = "#2563eb";
+    statusTitle = "Concluída";
+  } else if (dtFim){
+    const mesesRest = _mesesRestantes(agora, dtFim);
+
+    statusBg = "#22c55e";
+    statusTitle = "Dentro do prazo";
+
+    if (mesesRest <= 4){
+      statusBg = "#ef4444";
+      statusTitle = "Faltando até 4 meses";
+    } else if (mesesRest <= 6){
+      statusBg = "#facc15";
+      statusTitle = "Faltando 6–5 meses";
+    }
+
+    if (agora.getTime() > dtFim.getTime()){
+      statusBg = "#ef4444";
+      statusTitle = "Atrasada";
+    }
+  } else {
+    statusTitle = "Sem data final (tendência/prazo) na ficha";
+  }
+
+  const statusColor = (statusBg === "#ef4444" || statusBg === "#2563eb") ? "#ffffff" : "#0b1220";
+
+  return { concluida, statusTxt, statusBg, statusTitle, statusColor };
+}
+
 function renderTimelineDaObra(obra){
   const wrap = document.getElementById("timelineWrap");
   const empty = document.getElementById("tlEmptyMsg");
@@ -2575,10 +2627,10 @@ if (badge){
 
   if (concluida){
     badge.className = "tlBadge ok";
-    badge.innerHTML = "✅ CONCLUÍDA";
+    badge.innerHTML = "CONCLUÍDA";
   }else{
     badge.className = "tlBadge run";
-    badge.innerHTML = "🟡 EM ANDAMENTO";
+    badge.innerHTML = "EM ANDAMENTO";
   }
 
   badge.style.display = "inline-flex";
@@ -2699,7 +2751,7 @@ function bindCliqueLinhaTabelaObras(){
 
   // agora é POR CHECKBOX (não mais por clique na linha)
   tbody.addEventListener("change", (e) => {
-    const chk = e.target.closest('input[type="checkbox"].obraPick');
+    const chk = e.target.closest('input[type="checkbox"].chkObraPick');
     if(!chk) return;
 
     const tr = chk.closest('tr[data-obra-id]');
@@ -2730,7 +2782,6 @@ function bindCliqueLinhaTabelaObras(){
 bindCliqueLinhaTabelaObras();
 
 
-
 function renderizarTabelaObras(lista) {
   const tbody = document.querySelector("#tabelaObras tbody");
   if (!tbody) return;
@@ -2745,9 +2796,15 @@ function renderizarTabelaObras(lista) {
     const tr = document.createElement("tr");
     tr.setAttribute("data-obra-id", obra.obra_id);
 
-    const det = obra?.detalhes || {};
-    const statusTxt = _boolConcluida(det.obra_concluida) ? "✅ CONCLUÍDA" : "🟡 EM ANDAMENTO";
 
+
+// ===== STATUS (TABELA) =====
+const det = obra?.detalhes || {};
+const st = _statusTabelaObra(det);
+
+// NÃO pinte a linha inteira (remove isso se existir em outro lugar)
+// tr.style.background = "";
+// tr.style.filter = "";
 
 tr.innerHTML = `
   <td style="text-align:center;">${idMostrar}</td>
@@ -2755,10 +2812,21 @@ tr.innerHTML = `
   <td>${_escapeHtml(obra.cidade ?? "")}</td>
   <td style="text-align:center;">${_escapeHtml(obra.regional ?? "")}</td>
 
-  <!-- ✅ STATUS -->
-  <td style="text-align:center; font-weight:800;">${statusTxt}</td>
+  <!-- ✅ STATUS: único lugar com cor -->
+  <td
+    style="
+      text-align:center;
+      font-weight:900;
+      background:${st.statusBg};
+      color:${st.statusColor};
+      border-radius:8px;
+    "
+    title="${_escapeHtml(st.statusTitle)}"
+  >
+    ${st.statusTxt}
+  </td>
 
-  <!-- ✅ AÇÕES (uma única coluna) -->
+  <!-- ✅ AÇÕES -->
   <td class="tdAcoes">
     <div class="acoesWrap">
       <button class="btnAcao btnEditar" onclick="window.editarObra(${obra.obra_id})" title="Editar">
@@ -2790,7 +2858,7 @@ tr.innerHTML = `
     </div>
   </td>
 
-  <!-- ✅ SEL. (checkbox) -->
+  <!-- ✅ SEL. -->
   <td style="text-align:center;">
     <input
       type="checkbox"
