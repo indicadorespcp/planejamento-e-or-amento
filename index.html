@@ -21,25 +21,25 @@
     h2 { font-size: 16px; margin-bottom: 6px; color: #222; }
     h3 { font-size: 14px; margin-bottom: 6px; color: #222; }
 
-    input, select {
+input, select{
+  margin: 5px 10px 10px 0;
+  padding: 6px 8px;
+  width: 180px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 35px;
+  box-sizing: border-box;
+}
 
-    input[type="checkbox"],
-    input[type="radio"]{
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    }
-
-      margin: 5px 10px 10px 0;
-      padding: 6px 8px;
-      width: 180px;
-      font-size: 13px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      height: 35px;
-      box-sizing: border-box;
-    }
+/* ✅ checkbox/radio não “estouram” */
+input[type="checkbox"],
+input[type="radio"]{
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
 
     /* ✅ NÃO deixar o estilo geral “estourar” checkbox/radio */
 input[type="checkbox"],
@@ -1736,6 +1736,15 @@ input[type="radio"]{
         <input id="periodoAte" type="month" style="width:140px; height:35px;">
 
         <button id="btnExportar">Exportar Excel</button>
+        <button id="btnBackup" class="btnColFilter" type="button">💾 Backup</button>
+        <button onclick="abrirRestaurarBackup()">📂 Restaurar Backup</button>
+
+        <input
+        type="file"
+        id="inputRestaurarBackup"
+        accept="application/json"
+        style="display:none"
+        />
 
         <button id="btnLimparFiltros"
                 title="Limpar filtros"
@@ -2616,16 +2625,21 @@ function renderTimelineDaObra(obra){
   const det = obra?.detalhes || {};
 
   /* ===== STATUS DA OBRA (badge) ===== */
-const badge = document.getElementById("tlBadge");
+  const badge = document.getElementById("tlBadge");
+  if (badge){
+    const concluida = _boolConcluida(det.obra_concluida);
 
-if (badge){
-  const concluida =
-    det.obra_concluida === 1 ||
-    det.obra_concluida === "1" ||
-    det.obra_concluida === true ||
-    det.obra_concluida === "true";
-  
-}
+    badge.style.display = "inline-flex";
+    badge.classList.remove("ok","run");
+
+    if (concluida){
+      badge.classList.add("ok");
+      badge.textContent = "✅ CONCLUÍDA";
+    } else {
+      badge.classList.add("run");
+      badge.textContent = "⏳ EM ANDAMENTO";
+    }
+  }
 
   // ✅ pega primeiro "Início Fundações", se não tiver usa "Início de Obra"
   const dtInicio = _parseDataFlex(det.inicio_fundacoes) || _parseDataFlex(det.inicio_obra);
@@ -2645,6 +2659,7 @@ if (badge){
   if(empty) empty.style.display = "block";
   if(wrap) wrap.style.display = "none";
   return;
+  if (badge) badge.style.display = "none";
   }
 
 
@@ -2749,7 +2764,7 @@ function bindCliqueLinhaTabelaObras(){
     if(!tr) return;
 
     // deixa só 1 marcada (tipo rádio)
-    tbody.querySelectorAll('input[type="checkbox"].obraPick').forEach(c => {
+      tbody.querySelectorAll('input[type="checkbox"].chkObraPick').forEach(c => {
       if(c !== chk) c.checked = false;
     });
 
@@ -2860,7 +2875,7 @@ tr.innerHTML = `
   </td>
 `;
 
-    tbody.appendChild(tr);
+     tbody.appendChild(tr);
 
     // ✅ quando marcar o checkbox: desmarca os outros e atualiza timeline
 const chk = tr.querySelector(".chkObraPick");
@@ -4417,6 +4432,178 @@ document.getElementById("detalhesObraOverlay")?.addEventListener("click", (e) =>
 });
 
 }); 
+
+/* =========================================================
+   BACKUP / RESTAURAR (SEGURO) - BLOCO LIMPO E FUNCIONANDO
+   COLE ESTE BLOCO UMA ÚNICA VEZ (não duplicar)
+   ========================================================= */
+
+// ✅ BACKUP
+async function fazerBackupSistema(){
+  try{
+    const btn = document.getElementById("btnBackup");
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "Gerando backup...";
+    }
+
+    const r1 = await window.supabaseClient.from("lancamentos").select("*");
+    if(r1.error) throw r1.error;
+
+    const r2 = await window.supabaseClient.from("obras_cadastro").select("*");
+    if(r2.error) throw r2.error;
+
+    const userResp = await window.supabaseClient.auth.getUser();
+    const email = userResp?.data?.user?.email || "desconhecido";
+
+    const lancamentos = r1.data || [];
+    const obras = r2.data || [];
+
+    const backup = {
+      sistema: "Planejamento e Orçamento",
+      data_backup: new Date().toISOString(),
+      usuario: email,
+      total_lancamentos: lancamentos.length,
+      total_obras: obras.length,
+      dados: { lancamentos, obras }
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    const hoje = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+    a.href = url;
+    a.download = `backup_planejamento_${hoje}.json`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    alert("✅ Backup realizado com sucesso!");
+
+  }catch(err){
+    console.error("❌ Erro no backup:", err);
+    alert("❌ Erro ao gerar backup. Veja o console (F12).");
+  }finally{
+    const btn = document.getElementById("btnBackup");
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = "💾 Backup";
+    }
+  }
+}
+window.fazerBackupSistema = fazerBackupSistema;
+
+
+// ✅ RESTAURAR (FORA do backup)
+window.restaurarBackupSeguro = async function(file){
+  try{
+    console.log("🟡 Restaurando backup...", file?.name, file?.size);
+
+    const texto = await file.text();
+    const json = JSON.parse(texto);
+
+    if(!json?.dados || !Array.isArray(json.dados.lancamentos) || !Array.isArray(json.dados.obras)){
+      throw new Error("Arquivo de backup inválido (esperado: json.dados.lancamentos / json.dados.obras).");
+    }
+
+    // ✅ remove IDs automáticos (evita erro 400/PK)
+    const obras = (json.dados.obras || []).map(o => {
+      const { obra_id, ...resto } = o || {};
+      return resto;
+    });
+
+    const lancamentos = (json.dados.lancamentos || []).map(l => {
+      const { lanc_id, ...resto } = l || {};
+      return resto;
+    });
+
+    // 🔥 limpa tabelas
+    const del1 = await window.supabaseClient.from("lancamentos").delete().neq("lanc_id", 0);
+    if(del1.error) throw del1.error;
+
+    const del2 = await window.supabaseClient.from("obras_cadastro").delete().neq("obra_id", 0);
+    if(del2.error) throw del2.error;
+
+    // ✅ insere obras
+    if(obras.length){
+      const insObras = await window.supabaseClient.from("obras_cadastro").insert(obras);
+      if(insObras.error) throw insObras.error;
+    }
+
+    // ✅ insere lançamentos
+    if(lancamentos.length){
+      const insLanc = await window.supabaseClient.from("lancamentos").insert(lancamentos);
+      if(insLanc.error) throw insLanc.error;
+    }
+
+    console.log("🟢 Backup restaurado com sucesso!");
+
+    if(typeof carregarLancamentos === "function") await carregarLancamentos();
+    if(typeof carregarObras === "function") await carregarObras();
+
+    alert("✅ Backup restaurado com sucesso!");
+
+  }catch(err){
+    console.error("🔴 ERRO ao restaurar backup:", err);
+    const msg = err?.message || err?.details || err?.hint || JSON.stringify(err);
+    alert("❌ Não restaurou.\n\nMotivo:\n" + msg);
+    throw err;
+  }
+};
+
+
+// ✅ abre seletor do arquivo (botão "Restaurar Backup")
+window.abrirRestaurarBackup = function(){
+  document.getElementById("inputRestaurarBackup")?.click();
+};
+
+
+// ✅ listener do input (UM SÓ)
+(function bindRestoreOnce(){
+  const input = document.getElementById("inputRestaurarBackup");
+  if(!input) return;
+
+  if(input.dataset.boundRestore === "1") return;
+  input.dataset.boundRestore = "1";
+
+  input.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if(!file) return;
+
+    const confirmar = confirm(
+      "⚠️ ATENÇÃO!\n\n" +
+      "Restaurar o backup vai SUBSTITUIR os dados atuais.\n\n" +
+      "Deseja continuar?"
+    );
+
+    if(!confirmar){
+      e.target.value = "";
+      return;
+    }
+
+    try{
+      await window.restaurarBackupSeguro(file);
+    } finally {
+      e.target.value = "";
+    }
+  });
+})();
+
+
+// ✅ botão backup (UM SÓ)
+(function bindBackupOnce(){
+  const btn = document.getElementById("btnBackup");
+  if(!btn) return;
+
+  if(btn.dataset.boundBackup === "1") return;
+  btn.dataset.boundBackup = "1";
+
+  btn.addEventListener("click", fazerBackupSistema);
+})();
+
 </script>
 
 
@@ -4524,8 +4711,18 @@ document.getElementById("detalhesObraOverlay")?.addEventListener("click", (e) =>
   </div>
 </div>
 
+<input
+  type="file"
+  id="inputRestaurarBackup"
+  accept=".json"
+  style="display:none"
+/>
+
 </body>
 </html>
+
+
+
 
 
 
