@@ -2655,13 +2655,12 @@ function renderTimelineDaObra(obra){
   const concluida = _boolConcluida(det.obra_concluida);
 
   if(!dtInicio || !dtFim){
-  // sem datas = não mostra barra
+  if (badge) badge.style.display = "none";
   if(empty) empty.textContent = "Essa obra não tem 'Início Fundações' (ou Início de Obra) e/ou 'Tendência Término' (ou Tendência Previsão) preenchidos na ficha.";
   if(empty) empty.style.display = "block";
   if(wrap) wrap.style.display = "none";
   return;
-  if (badge) badge.style.display = "none";
-  }
+}
 
 
   const agora = new Date();
@@ -2677,16 +2676,6 @@ function renderTimelineDaObra(obra){
   const pctHoje = Math.round(((hoje - inicio) / total) * 100);
   const pctHojeClamped = Math.min(Math.max(pctHoje, 0), 100);
 
-  // cor final (conclusão)
-  // - concluída: azul sólido
-  // - não concluída: gradiente verde->amarelo->vermelho
-// ✅ meses restantes até o fim (regra por mês)
-function _mesesRestantes(agora, fim){
-  let m = (fim.getFullYear() - agora.getFullYear()) * 12 + (fim.getMonth() - agora.getMonth());
-  // se o dia do mês ainda não chegou, "tira" 1 mês (mais conservador)
-  if (fim.getDate() < agora.getDate()) m -= 1;
-  return m;
-}
 
 if(fill){
   fill.style.width = pct + "%";
@@ -2949,29 +2938,52 @@ if (chk) {
         ? formatarIdManual(obra.id_manual)
         : (obra.obra_id ?? "");
 
-      tr.innerHTML = `
-        <td style="text-align:center;">${idMostrar}</td>
-        <td><input id="editObraNome_${obraId}" type="text" value="${(obra.nome_obra ?? "").replace(/"/g,'&quot;')}" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
-        <td><input id="editObraCidade_${obraId}" type="text" value="${(obra.cidade ?? "").replace(/"/g,'&quot;')}" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;"></td>
-        <td>
-          <select id="editObraRegional_${obraId}" style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
-            <option value="">Regional...</option>
-            <option value="Curitiba">Curitiba</option>
-            <option value="Londrina">Londrina</option>
-          </select>
-        </td>
-        <td class="tdAcoes">
-          <div class="acoesWrap">
-            <button class="btnAcao btnSalvar" onclick="salvarEdicaoObra(${obraId})" title="Salvar">
-              <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
-            </button>
-            <button class="btnAcao btnCancelar" onclick="cancelarEdicaoObra()" title="Cancelar">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
-            </button>
-          </div>
-        </td>
-      `;
+    tr.innerHTML = `
+    <td style="text-align:center;">${idMostrar}</td>
 
+    <td>
+    <input id="editObraNome_${obraId}" type="text"
+      value="${(obra.nome_obra ?? "").replace(/"/g,'&quot;')}"
+      style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
+    </td>
+
+    <td>
+    <input id="editObraCidade_${obraId}" type="text"
+      value="${(obra.cidade ?? "").replace(/"/g,'&quot;')}"
+      style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
+    </td>
+
+    <td>
+    <select id="editObraRegional_${obraId}"
+      style="width:100%; height:22px; font-size:10px; margin:0; background:#fbefc1; border:1px solid #e2d6b5;">
+      <option value="">Regional...</option>
+      <option value="Curitiba">Curitiba</option>
+      <option value="Londrina">Londrina</option>
+    </select>
+    </td>
+
+    <!-- ✅ STATUS (mantém a coluna para não quebrar a tabela) -->
+    <td style="text-align:center; font-weight:900;">
+      —
+    </td>
+
+    <!-- ✅ AÇÕES -->
+    <td class="tdAcoes">
+    <div class="acoesWrap">
+      <button class="btnAcao btnSalvar" onclick="salvarEdicaoObra(${obraId})" title="Salvar">
+        <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+      </button>
+      <button class="btnAcao btnCancelar" onclick="cancelarEdicaoObra()" title="Cancelar">
+      <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+      </button>
+    </div>
+    </td>
+
+  <!-- ✅ SEL (mantém a coluna para não quebrar a tabela) -->
+  <td style="text-align:center;">
+    <input type="checkbox" disabled title="Seleção desativada durante edição">
+  </td>
+`;
       document.getElementById(`editObraRegional_${obraId}`).value = obra.regional || "";
     }
     window.editarObra = editarObra;
