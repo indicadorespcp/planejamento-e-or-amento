@@ -2052,6 +2052,11 @@
   pointer-events: none; /* não atrapalha clique/scroll */
 }
 
+#tabelaLancamentos:not(.modoWesley) th.thUsuarioLanc,
+#tabelaLancamentos:not(.modoWesley) td.tdUsuarioLanc{
+  display: none !important;
+}
+
     </style>
   </head>
   <body>
@@ -2414,7 +2419,11 @@
 
     document.addEventListener("DOMContentLoaded", () => {
 
-
+    document.getElementById("obraIdManual")?.addEventListener("change", autoCadastrarObraPorId);
+    // opcional: ao pressionar Enter no campo ID
+    document.getElementById("obraIdManual")?.addEventListener("keydown", (e) => {
+    if(e.key === "Enter") autoCadastrarObraPorId();
+    });
 
 
       /* =========================================================
@@ -2909,6 +2918,8 @@ let html = `
         aplicarFiltroGeral();
       });
 
+
+
       /* =========================================================
         UI form
         ========================================================= */
@@ -3287,7 +3298,69 @@ if (thUser) thUser.style.display = isWesley ? "" : "none";
         renderizarTabelaObras(obrasCache);
       }
 
-  function _parseDataFlex(v){
+    // =========================================================
+    // AUTO-CADASTRO POR ID (Cadastro de Obras)
+    // =========================================================
+    const OBRAS_PRESET = {
+    "094": { nome_obra: "Augen", cidade: "CURITIBA-PR", regional: "Curitiba" },
+    // "095": { nome_obra: "...", cidade: "...", regional: "Curitiba" },
+    };
+
+    function normId3(v){
+  const n = String(v ?? "").trim();
+  if(!n) return "";
+  const num = Number(n);
+  if(!Number.isFinite(num)) return "";
+  return String(num).padStart(3,"0"); // 94 -> "094"
+}
+
+async function autoCadastrarObraPorId(){
+  const inpId = document.getElementById("obraIdManual");
+  const inpNome = document.getElementById("obraNome");
+  const inpCidade = document.getElementById("obraCidade");
+  const selRegional = document.getElementById("obraRegional");
+
+  const id3 = normId3(inpId?.value);
+  if(!id3) return;
+
+  const preset = OBRAS_PRESET[id3];
+  if(!preset) return; // não faz nada se não tiver na lista
+
+  // preenche UI
+  if(inpNome) inpNome.value = preset.nome_obra || "";
+  if(inpCidade) inpCidade.value = preset.cidade || "";
+  if(selRegional) selRegional.value = preset.regional || "";
+
+  // salva direto no Supabase (upsert)
+  const payload = {
+    id_manual: Number(id3),          // mantém como número na tabela
+    nome_obra: preset.nome_obra,
+    cidade: preset.cidade,
+    regional: preset.regional
+  };
+
+  const { error } = await window.supabaseClient
+    .from("obras_cadastro")
+    .upsert(payload, { onConflict: "id_manual" });
+
+  if(error){
+    console.error("AUTO-CADASTRO ERRO:", error);
+    alert("Não consegui cadastrar automaticamente. Veja o console (F12).");
+    return;
+  }
+
+  // atualiza tabela de obras e limpa campos (opcional)
+  await carregarObras();
+  if(inpId) inpId.value = "";
+  if(inpNome) inpNome.value = "";
+  if(inpCidade) inpCidade.value = "";
+  if(selRegional) selRegional.value = "";
+
+  // se quiser uma mensagem discreta
+  // alert(`✅ Obra ${id3} cadastrada: ${preset.nome_obra}`);
+}
+
+    function _parseDataFlex(v){
     const s0 = String(v ?? "").trim();
     if(!s0) return null;
 
