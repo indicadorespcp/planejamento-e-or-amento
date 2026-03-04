@@ -1740,73 +1740,317 @@
 }
 
 
-  /* ===== Diagnóstico ===== */
+/* ===== Diagnóstico ===== */
 #diagOverlay{
-  position:fixed; inset:0;
+  position: fixed;
+  inset: 0;
   background: rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
+
 .diagBox{
-  width:min(920px, 92vw);
+  width: min(980px, 92vw);
   max-height: 86vh;
-  overflow:auto;
-  background:#fff;
-  border-radius:14px;
-  box-shadow:0 15px 40px rgba(0,0,0,.25);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 15px 40px rgba(0,0,0,.25);
+  overflow: hidden;           /* scroll fica no body */
+  display: flex;
+  flex-direction: column;
 }
+
+/* ✅ tudo que precisa ficar “congelado” */
 .diagHeader{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 14px;
-  border-bottom:1px solid #e5e7eb;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
 }
-.diagClose{
-  background:none; border:none; cursor:pointer; font-size:18px;
+
+.diagTitle{
+  font-weight: 900;
+  font-size: 18px;
+  margin-bottom: 10px;
 }
-.diagBody{ padding:12px 14px; }
+
+/* linha dos filtros + botões */
 .diagControls{
-  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-left: 22px;        /* ✅ empurra para a direita */
 }
-.diagControls input{ height:34px; }
-#btnDiagOk{ height:34px; padding:0 12px; cursor:pointer; }
+
+.diagControls label{
+  min-width: 28px;
+}
+
+.diagControls input{
+  height: 34px;
+}
+
+#btnDiagOk{
+  height: 34px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.diagClose{
+  height: 34px;
+  width: 40px;
+  cursor: pointer;
+}
+
+/* ✅ “Registros encontrados: X” também fica no cabeçalho */
+.diagStatus{
+  margin-top: 10px;
+  padding-left: 22px;        /* ✅ alinhado com De/Até */
+  font-size: 13px;
+}
+
+/* ✅ só o conteúdo rola */
+.diagBody{
+  overflow: auto;
+  padding: 12px 18px 16px 18px;
+}
+
+/* ✅ remove a “coluna vazia” (força ocupar 100%) */
+.diagResultado{
+  display: block;
+  width: 100%;
+}
+
+.diagCard{
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  background: #fafafa;
+}
+
+.diagTitle{
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.diagLine{
+  margin: 2px 0;
+}
+
+/* ================================
+   DIAGNÓSTICO — CLEAN / SAP (FIX)
+   Cole no FINAL do CSS
+   ================================ */
+
+#diagOverlay{
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+.diagBox{
+  width: min(980px, 96vw) !important;
+  max-height: min(86vh, 760px) !important;
+  border-radius: 14px !important;
+}
+
+/* header mais “SAP”, compacto */
+.diagHeader{
+  padding: 12px 14px !important;
+  background: #fff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* ✅ separa o título do header do título dos cards */
+.diagHeader .diagTitle{
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  margin: 0 0 8px 0 !important;
+}
+
+/* controles mais compactos */
+.diagControls{
+  gap: 8px !important;
+  padding-left: 0 !important;
+}
+
+.diagControls label{
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: #334155 !important;
+}
+
+.diagControls input{
+  height: 32px !important;
+  width: 150px !important;
+  font-size: 12px !important;
+  margin: 0 !important;
+  padding: 6px 8px !important;
+}
+
+#btnDiagOk,
+.diagClose{
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+}
+
+.diagStatus{
+  margin-top: 8px !important;
+  padding-left: 0 !important;
+  font-size: 12px !important;
+  color: #475569 !important;
+}
+
+/* ✅ aqui é onde a gente mata o “vazio” da direita */
+.diagBody{
+  padding: 10px 12px 12px !important;
+  overflow: auto !important;
+  display: block !important;
+}
 
 .diagResultado{
-  margin-top:12px;
-  font-size:13px;
-  line-height:1.35;
+  width: 100% !important;
+  max-width: none !important;
+  display: block !important;
 }
+
+/* cards mais elegantes */
 .diagCard{
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:10px 12px;
-  margin:10px 0;
-  background:#fafafa;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  margin: 10px 0 !important;
+  background: #f8fafc !important;
+  border: 1px solid #e5e7eb !important;
 }
-.diagTitle{
-  font-weight:800;
-  margin-bottom:6px;
+
+/* título do card (menor) */
+.diagCard .diagTitle{
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  margin: 0 0 6px 0 !important;
+  color: #0f172a !important;
 }
-.diagLine{ margin:2px 0; }
 
+/* linhas (menores e limpas) */
+.diagLine{
+  font-size: 12px !important;
+  margin: 2px 0 !important;
+  color: #334155 !important;
+}
 
+/* DIAGNÓSTICO — remove “vazio” deixando o modal mais compacto */
 .diagBox{
-  position: relative;
-  z-index: 100000;
+  width: min(510px, 94vw) !important;   /* ajuste aqui: 680–820 conforme seu gosto */
+  max-width: 94vw !important;
 }
 
-#btnDiagnostico{
-  position: relative;
-  z-index: 9999;
-  pointer-events: auto;
+.diagCard{
+  width: 100% !important;
+  max-width: none !important;
 }
 
-#tabelaLancamentos:not(.modoWesley) th.thUsuarioLanc,
-#tabelaLancamentos:not(.modoWesley) td.tdUsuarioLanc{
-  display: none !important;
+/* ================================
+   DIAGNÓSTICO — refinamento SAP (só CSS)
+   ================================ */
+
+/* Header fixo + sombra suave (fica “congelado” no topo) */
+.diagHeader{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
 
+/* Alinhamento mais “certinho” dos campos e botões */
+.diagControls{
+  align-items: center;
+  gap: 8px;
+}
+
+.diagControls label{
+  margin: 0;
+  font-size: 11px;
+}
+
+.diagControls input{
+  height: 30px;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+/* Botões mais compactos */
+#btnDiagOk,
+.diagClose{
+  height: 30px;
+  font-size: 11px;
+  padding: 0 10px;
+}
+
+/* Cards mais compactos (menos altura) */
+.diagCard{
+  padding: 8px 10px;
+  margin: 8px 0;
+  border-radius: 10px;
+}
+
+.diagCard .diagTitle{
+  font-size: 11.5px;
+  margin-bottom: 4px;
+}
+
+.diagLine{
+  font-size: 11px;
+  margin: 1px 0;
+  line-height: 1.25;
+}
+
+/* Status (Registros encontrados) mais discreto */
+.diagStatus{
+  font-size: 11px;
+  margin-top: 6px;
+  color: #64748b;
+}
+
+/* ================================
+   DIAGNÓSTICO — rodapé elegante (sticky)
+   ================================ */
+
+/* garante layout em coluna */
+.diagBox{
+  display: flex;
+  flex-direction: column;
+}
+
+/* o body rola, mas respeita header/rodapé */
+.diagBody{
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-bottom: 54px; /* espaço para não “sumir” atrás do rodapé */
+}
+
+/* cria o rodapé visual (sem precisar mexer no HTML) */
+.diagBox::after{
+  content: "";
+  position: sticky;
+  bottom: 0;
+  height: 44px;
+
+  /* visual SAP */
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.96) 55%, #fff 100%);
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -10px 18px rgba(0,0,0,0.08);
+
+  z-index: 4;
+  pointer-events: none; /* não atrapalha clique/scroll */
+}
 
     </style>
   </head>
@@ -2319,7 +2563,7 @@ if (error) {
   const blocosTopo = [];
   Array.from(mapDiaUsuario.entries()).forEach(([k, qt]) => {
     const [dia, u] = k.split("||");
-    blocosTopo.push(`SÓ EXISTE REGISTRO DE LANÇAMENTO POR: <b>${u}</b>`);
+    blocosTopo.push(`EXISTE REGISTRO DE LANÇAMENTO POR: <b>${u}</b>`);
   });
 
   if(blocosTopo.length){
@@ -5291,27 +5535,36 @@ function atualizarDashboardSeAberto(){
 
 
 <!-- ✅ MODAL DIAGNÓSTICO -->
-<div id="diagOverlay" class="overlay" style="display:none;">
+<div id="diagOverlay" style="display:none;">
   <div class="diagBox">
+
+    <!-- Cabeçalho FIXO -->
     <div class="diagHeader">
       <div class="diagTitle">Diagnóstico (Auditoria)</div>
-      <button type="button" class="btnFechar" onclick="fecharDiagnostico()">✕</button>
+
+      <div class="diagControls">
+        <label>De:</label>
+        <input type="date" id="diagDe">
+
+        <label>Até:</label>
+        <input type="date" id="diagAte">
+
+        <button id="btnDiagOk" type="button">OK</button>
+
+        <!-- ✅ ÚNICO botão fechar (fica do lado do OK) -->
+        <button type="button" class="diagClose" onclick="fecharDiagnostico()">✕</button>
+      </div>
+
+      <div id="diagStatus" class="diagStatus"></div>
     </div>
 
-    <div class="diagControls">
-      <label>De:</label>
-      <input type="date" id="diagDe">
-      <label>Até:</label>
-      <input type="date" id="diagAte">
-      <button id="btnDiagOk" type="button">OK</button>
+    <!-- Conteúdo ROLÁVEL -->
+    <div class="diagBody">
+      <div id="diagResultado" class="diagResultado"></div>
     </div>
 
-    <div id="diagStatus" class="diagStatus"></div>
-    <div id="diagResultado" class="diagResultado"></div>
   </div>
 </div>
-</div>
-
 
   </body>
   </html>
