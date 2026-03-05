@@ -2405,7 +2405,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <!-- XLSX -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
     <!-- html2canvas (PDF) -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -3075,46 +3075,207 @@ document.getElementById("btnNovo")?.addEventListener("click", async () => {
       if(selRegional) selRegional.value = info.regional || "";  
       });
 
-      /* =========================================================
-        EXPORT CSV
-        ========================================================= */
-      document.getElementById("btnExportar")?.addEventListener("click", () => {
-        const tabela = document.getElementById("tabelaLancamentos");
-        if (!tabela) return;
+/* =========================================================
+   EXPORT XLSX (formatado) — botão único (#btnExportar)
+   ========================================================= */
+document.getElementById("btnExportar")?.addEventListener("click", () => {
+  try {
+    if (!window.XLSX) {
+      alert("XLSX não carregou. Confira o script do XLSX no HTML.");
+      return;
+    }
 
-        const ths = Array.from(tabela.querySelectorAll("thead th"));
-        const idxVisiveis = ths
-          .map((th, i) => ({ i, vis: (th.style.display !== "none") }))
-          .filter(x => x.vis)
-          .map(x => x.i);
+    const tabela = document.getElementById("tabelaLancamentos");
+    if (!tabela) return;
 
-        const headers = idxVisiveis.map(i => ths[i].innerText.replace(/\s+/g, " ").trim());
+    // ✅ pega somente colunas visíveis
+    const ths = Array.from(tabela.querySelectorAll("thead th"));
+let idxVisiveis = ths
+  .map((th, i) => ({ i, vis: (th.style.display !== "none") }))
+  .filter(x => x.vis)
+  .map(x => x.i);
 
-        const trs = Array.from(tabela.querySelectorAll("tbody tr"));
-        const rows = trs.map(tr => {
-          const tds = Array.from(tr.querySelectorAll("td"));
-          return idxVisiveis.map(i => {
-            let texto = (tds[i]?.innerText || "").replace(/\s+/g, " ").trim();
-            texto = texto.replace("✏️", "").replace("🗑️", "").replace("➕", "").replace("✔️","").replace("❌","").trim();
-            texto = texto.replace(/"/g, '""');
-            return `"${texto}"`;
-          }).join(";");
-        });
+// ✅ NÃO exportar colunas de controle (sempre) — AÇÕES / USUÁRIO
+idxVisiveis = idxVisiveis.filter(i => {
+  const nome = (ths[i]?.innerText || "").toUpperCase();
+  return !nome.includes("AÇÕES") && !nome.includes("USUÁRIO");
+});
 
-        const csv = [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(";"), ...rows].join("\n");
-        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
+const headers = idxVisiveis.map(i =>
+  (ths[i]?.innerText || "").replace(/\s+/g, " ").trim()
+);
 
-        const a = document.createElement("a");
-        const hoje = new Date().toISOString().slice(0,10);
-        a.href = url;
-        a.download = `Planejamento_Orcamento_${hoje}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+const trs = Array.from(tabela.querySelectorAll("tbody tr"));
+
+// linhas (texto) — já limpando ícones
+const linhasTexto = trs.map(tr => {
+  const tds = Array.from(tr.querySelectorAll("td"));
+  return idxVisiveis.map(i => {
+    let texto = (tds[i]?.innerText || "").replace(/\s+/g, " ").trim();
+    texto = texto
+      .replace("✏️","")
+      .replace("🗑️","")
+      .replace("➕","")
+      .replace("✔️","")
+      .replace("❌","")
+      .trim();
+    return texto;
+  });
+});
+
+    // converte valores para número quando fizer sentido (moeda/percentual)
+    const linhas = linhasTexto.map(row => row.map((texto, c) => {
+      const nomeCol = (headers[c] || "").toUpperCase();
+      let t = String(texto || "").trim();
+
+      const isPctCol =
+        nomeCol.includes("%") ||
+        nomeCol.includes("CRONOGRAMA FRE") ||
+        nomeCol.includes("CUSTO PLANEJADO") ||
+        nomeCol.includes("CUSTO AGREGADO");
+
+      const isMoedaCol =
+        nomeCol.includes("(R$)") ||
+        nomeCol.includes("CUSTO") ||
+        nomeCol.includes("MEDIÇÕES") ||
+        nomeCol.includes("ORÇAMENTO") ||
+        nomeCol.includes("ESTOQUE") ||
+        nomeCol.includes("PROJEÇÃO");
+
+      // remove "R$"
+      t = t.replace(/^R\$\s*/i, "");
+
+      // percentual: "12,34%" -> 0.1234 (Excel)
+      if (isPctCol) {
+        const semPct = t.replace("%", "").trim();
+        const num = Number(semPct.replace(/\./g, "").replace(",", "."));
+        if (Number.isFinite(num)) return num / 100;
+        return texto;
+      }
+
+      // moeda/número: "1.234,56" -> 1234.56
+      if (isMoedaCol) {
+        const num = Number(t.replace(/\./g, "").replace(",", "."));
+        if (Number.isFinite(num)) return num;
+        return texto;
+      }
+
+      return texto;
+    }));
+
+    // monta planilha
+    const aoa = [headers, ...linhas];
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // ===== VISUAL (SAP) =====
+    const range = XLSX.utils.decode_range(ws["!ref"]);
+
+    const HEADER_BG = "082A48";
+    const HEADER_FG = "FFFFFF";
+    const ZEBRA_BG  = "F3F6FA";
+    const BORDER    = "E5E7EB";
+    const BORDER2   = "F1F5F9";
+
+    // cabeçalho azul + fonte branca
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[addr]) continue;
+
+      ws[addr].s = {
+        font: { bold: true, color: { rgb: HEADER_FG } },
+        alignment: { horizontal: "center", vertical: "center", wrapText: true },
+        fill: { patternType: "solid", fgColor: { rgb: HEADER_BG } },
+        border: {
+          top: { style: "thin", color: { rgb: BORDER } },
+          bottom: { style: "thin", color: { rgb: BORDER } },
+          left: { style: "thin", color: { rgb: BORDER } },
+          right: { style: "thin", color: { rgb: BORDER } }
+        }
+      };
+    }
+
+    // zebra no corpo + alinhamento
+    for (let R = 1; R <= range.e.r; R++) {
+      const zebra = (R % 2 === 0);
+      for (let C = range.s.c; C <= range.e.c; C++) {
+        const addr = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[addr]) continue;
+
+        const isNum = ws[addr].t === "n";
+        ws[addr].s = ws[addr].s || {};
+        ws[addr].s.alignment = { horizontal: isNum ? "right" : "left", vertical: "center" };
+
+        if (zebra) ws[addr].s.fill = { patternType: "solid", fgColor: { rgb: ZEBRA_BG } };
+
+        ws[addr].s.border = {
+          top: { style: "thin", color: { rgb: BORDER2 } },
+          bottom: { style: "thin", color: { rgb: BORDER2 } },
+          left: { style: "thin", color: { rgb: BORDER2 } },
+          right: { style: "thin", color: { rgb: BORDER2 } }
+        };
+      }
+    }
+
+    // altura do cabeçalho
+    ws["!rows"] = ws["!rows"] || [];
+    ws["!rows"][0] = { hpt: 24 };
+
+    // ✅ congelar cabeçalho
+    ws["!freeze"] = { xSplit: 0, ySplit: 1, topLeftCell: "A2", activePane: "bottomLeft", state: "frozen" };
+
+    // ✅ autofiltro
+    ws["!autofilter"] = {
+      ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } })
+    };
+
+    // ✅ largura automática simples
+    ws["!cols"] = headers.map((h, cIdx) => {
+      let maxLen = (h || "").length;
+      linhasTexto.forEach(row => {
+        const s = String(row[cIdx] ?? "");
+        if (s.length > maxLen) maxLen = s.length;
       });
+      return { wch: Math.min(Math.max(maxLen + 2, 10), 45) };
+    });
 
+    // ✅ formatos de número (por nome da coluna)
+    for (let c = 0; c < headers.length; c++) {
+      const nome = (headers[c] || "").toUpperCase();
+
+      const isPctCol =
+        nome.includes("%") ||
+        nome.includes("CRONOGRAMA FRE") ||
+        nome.includes("CUSTO PLANEJADO") ||
+        nome.includes("CUSTO AGREGADO");
+
+      const isMoedaCol =
+        nome.includes("(R$)") ||
+        nome.includes("CUSTO") ||
+        nome.includes("MEDIÇÕES") ||
+        nome.includes("ORÇAMENTO") ||
+        nome.includes("ESTOQUE") ||
+        nome.includes("PROJEÇÃO");
+
+      for (let r = 1; r <= linhas.length; r++) {
+        const addr = XLSX.utils.encode_cell({ r, c });
+        if (!ws[addr]) continue;
+        if (ws[addr].t !== "n") continue;
+
+        if (isPctCol) ws[addr].z = "0.00%";
+        else if (isMoedaCol) ws[addr].z = '"R$" #,##0.00';
+      }
+    }
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Planejamento");
+
+    const hoje = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Planejamento_Orcamento_${hoje}.xlsx`);
+  } catch (e) {
+    console.error("EXPORT XLSX ERRO:", e);
+    alert("Erro ao exportar Excel. Veja o console (F12).");
+  }
+});
   /* =========================================================
     SALVAR (FORM) - LANÇAMENTOS  ✅ CORRIGIDO
     ========================================================= */
@@ -5792,6 +5953,7 @@ function atualizarDashboardSeAberto(){
 
   </body>
   </html>
+
 
 
 
