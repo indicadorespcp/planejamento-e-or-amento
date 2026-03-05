@@ -3096,12 +3096,12 @@ let idxVisiveis = ths
   .map(x => x.i);
 
 // ✅ NÃO exportar colunas de controle (sempre) — AÇÕES / USUÁRIO
-idxVisiveis = idxVisiveis.filter(i => {
+
+const idxExport = idxVisiveis.filter(i => {
   const nome = (ths[i]?.innerText || "").toUpperCase();
   return !nome.includes("AÇÕES") && !nome.includes("USUÁRIO");
 });
-
-const headers = idxVisiveis.map(i =>
+const headers = idxExport.map(i =>
   (ths[i]?.innerText || "").replace(/\s+/g, " ").trim()
 );
 
@@ -3110,7 +3110,7 @@ const trs = Array.from(tabela.querySelectorAll("tbody tr"));
 // linhas (texto) — já limpando ícones
 const linhasTexto = trs.map(tr => {
   const tds = Array.from(tr.querySelectorAll("td"));
-  return idxVisiveis.map(i => {
+  return idxExport.map(i => {
     let texto = (tds[i]?.innerText || "").replace(/\s+/g, " ").trim();
     texto = texto
       .replace("✏️","")
