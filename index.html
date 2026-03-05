@@ -345,6 +345,7 @@
       th:nth-child(16), td:nth-child(16) { width: 120px; }                       /* IDA */
       th:nth-child(17), td:nth-child(17) { width: 120px; }                       /* IDF */
 
+
   /* =========================================================
    FIX: LARGURAS + STICKY DIREITA (AÇÕES/USUÁRIO) SEM BUGAR O +
    Cole no final da seção TABELA
@@ -2239,8 +2240,8 @@
         </div>
 
         <div id="formLancamento" style="display:none; margin-top:10px;">
-          <input type="number" id="idManualForm" placeholder="ID" style="width:90px;" />
-          <input type="text" id="obra" placeholder="Obra" />
+        <select id="idManualForm" style="width:110px;"><option value="">ID...</option></select>
+        <input type="text" id="obra" placeholder="Obra" />
 
           <select id="regional">
             <option value="">Selecione a Regional</option>
@@ -2439,8 +2440,130 @@
           auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
         });
 
+        // =========================================
+// OBRAS CADASTRADAS -> SELECT do ID (Tabela)
+// =========================================
+let obrasCadastroMap = new Map(); // id_manual (Number) -> { nome_obra, regional }
+
+async function carregarObrasParaLancamento(){
+  const { data, error } = await window.supabaseClient
+    .from("obras_cadastro")
+    .select("id_manual, nome_obra, regional")
+    .order("id_manual", { ascending: true });
+
+  if(error){
+    console.error("Erro ao carregar obras (para lançamento):", error);
+    return;
+  }
+
+  const lista = Array.isArray(data) ? data : [];
+  console.log("OBRAS para lançamento (qt):", lista.length, lista);
+
+  // monta o MAPA
+  obrasCadastroMap = new Map();
+  lista.forEach(o => {
+    const id = Number(o.id_manual);
+    if(!Number.isFinite(id)) return;
+    obrasCadastroMap.set(id, { nome_obra: o.nome_obra || "", regional: o.regional || "" });
+  });
+
+  // preenche o SELECT
+  const sel = document.getElementById("idManualForm");
+  if(!sel){
+    console.warn("Select #idManualForm não encontrado.");
+    return;
+  }
+
+  const valorAtual = sel.value;
+
+  // limpa tudo
+  while (sel.firstChild) sel.removeChild(sel.firstChild);
+
+  // opção padrão
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "ID...";
+  sel.appendChild(opt0);
+
+  // opções das obras
+  lista.forEach(o => {
+    const id = Number(o.id_manual);
+    if(!Number.isFinite(id)) return;
+
+    const opt = document.createElement("option");
+    opt.value = String(id);
+
+    const idTxt = formatarIdManual(id);
+    const nome = (o.nome_obra || "").trim();
+    opt.textContent = nome ? `${idTxt} - ${nome}` : idTxt;
+
+    sel.appendChild(opt);
+  });
+
+  // tenta manter seleção anterior
+  if(valorAtual) sel.value = valorAtual;
+}
+
         console.log("Supabase conectado");
       }
+
+// =========================================
+// OBRAS CADASTRADAS -> SELECT do ID (Tabela)
+// =========================================
+let obrasCadastroMap = new Map(); // id_manual (Number) -> { nome_obra, regional }
+
+async function carregarObrasParaLancamento(){
+  const { data, error } = await window.supabaseClient
+    .from("obras_cadastro")
+    .select("id_manual, nome_obra, regional")
+    .order("id_manual", { ascending: true });
+
+  if(error){
+    console.error("Erro ao carregar obras (para lançamento):", error);
+    return;
+  }
+
+  const lista = Array.isArray(data) ? data : [];
+  console.log("OBRAS para lançamento (qt):", lista.length, lista);
+
+  obrasCadastroMap = new Map();
+  lista.forEach(o => {
+    const id = Number(o.id_manual);
+    if(!Number.isFinite(id)) return;
+    obrasCadastroMap.set(id, { nome_obra: o.nome_obra || "", regional: o.regional || "" });
+  });
+
+  const sel = document.getElementById("idManualForm");
+  if(!sel){
+    console.warn("Select #idManualForm não encontrado.");
+    return;
+  }
+
+  const valorAtual = sel.value;
+
+  while (sel.firstChild) sel.removeChild(sel.firstChild);
+
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "ID...";
+  sel.appendChild(opt0);
+
+  lista.forEach(o => {
+    const id = Number(o.id_manual);
+    if(!Number.isFinite(id)) return;
+
+    const opt = document.createElement("option");
+    opt.value = String(id);
+
+    const idTxt = formatarIdManual(id);
+    const nome = (o.nome_obra || "").trim();
+    opt.textContent = nome ? `${idTxt} - ${nome}` : idTxt;
+
+    sel.appendChild(opt);
+  });
+
+  if(valorAtual) sel.value = valorAtual;
+}
 
 /* =========================================================
   DIAGNÓSTICO (somente Wesley) - usando lancamentos_auditoria
@@ -2923,10 +3046,33 @@ let html = `
       /* =========================================================
         UI form
         ========================================================= */
-      document.getElementById("btnNovo")?.addEventListener("click", () => {
-        const form = document.getElementById("formLancamento");
-        if(!form) return;
-        form.style.display = (form.style.display === "none") ? "block" : "none";
+document.getElementById("btnNovo")?.addEventListener("click", async () => {
+  const form = document.getElementById("formLancamento");
+  if(!form) return;
+
+  const vaiAbrir = (form.style.display === "none");
+  form.style.display = vaiAbrir ? "block" : "none";
+
+  // ✅ quando abrir, carrega a lista de IDs das obras cadastradas
+  if(vaiAbrir){
+    await carregarObrasParaLancamento();
+  }
+});
+
+      // ✅ Quando escolher o ID, preenche Obra + Regional automaticamente
+      document.getElementById("idManualForm")?.addEventListener("change", () => {
+      const sel = document.getElementById("idManualForm");
+      const inpObra = document.getElementById("obra");
+      const selRegional = document.getElementById("regional");
+
+      const id = Number(sel?.value);
+      if(!Number.isFinite(id)) return;
+
+      const info = obrasCadastroMap.get(id);
+      if(!info) return;
+
+      if(inpObra) inpObra.value = info.nome_obra || "";
+      if(selRegional) selRegional.value = info.regional || "";  
       });
 
       /* =========================================================
@@ -3210,6 +3356,9 @@ const isWesley = (emailLogado === "wesley.vieira@construtorapride.com.br");
 
 // aplica modo na TABELA (classe + cabeçalho)
 const tbl = document.getElementById("tabelaLancamentos");
+// ✅ também esconde/mostra as células do corpo (td) do usuário
+document.querySelectorAll("#tabelaLancamentos tbody td.tdUsuarioLanc")
+.forEach(td => td.style.display = isWesley ? "" : "none");
 if (tbl) tbl.classList.toggle("modoWesley", isWesley);
 
 const thUser = document.querySelector("#tabelaLancamentos thead th.thUsuarioLanc");
@@ -4446,8 +4595,9 @@ window.salvarLinhaTemp = salvarLinhaTemp;
         if(error){ console.error(error); setLoginMsg("Login inválido. Verifique email/senha."); return; }
 
         mostrarSistema();
-        await configurarDiagnosticoSomenteWesley(); // ✅ ADICIONE ESTA LINHA
+        await configurarDiagnosticoSomenteWesley();
         await carregarLancamentos();
+        await carregarObrasParaLancamento();
         abrirTabela();
         });
 
@@ -4488,10 +4638,11 @@ async function checarSessaoInicial(){
   const session = data?.session;
 
   if (session) {
-    mostrarSistema();
-    await configurarDiagnosticoSomenteWesley();
-    await carregarLancamentos();
-    abrirTabela();
+  mostrarSistema();
+  await configurarDiagnosticoSomenteWesley();
+  await carregarLancamentos();
+  await carregarObrasParaLancamento();
+  abrirTabela();
   } else {
     mostrarLogin();
   }
