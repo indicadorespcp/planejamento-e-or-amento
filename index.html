@@ -2061,6 +2061,121 @@
   display: none !important;
 }
 
+/* =========================================================
+   ✅ MODAL QTD LANÇAMENTOS (SAP clean)
+   ========================================================= */
+#qtdLancOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 14000; /* acima dos demais */
+}
+
+.qtdLancBox{
+  width: min(520px, 92vw);
+  background: #fff;
+  border: 1px solid #b3c9df;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+  overflow: hidden;
+}
+
+.qtdLancHeader{
+  background: #082A48;
+  color: #fff;
+  padding: 12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  position: relative;
+}
+
+.qtdLancTitle{
+  font-size: 15px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.qtdLancSub{
+  font-size: 12px;
+  opacity: .9;
+  margin-top: 2px;
+}
+
+.qtdLancClose{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  cursor: pointer;
+}
+.qtdLancClose:hover{ background: rgba(255,255,255,0.18); }
+
+.qtdLancBody{
+  padding: 14px;
+  background: #f3f6fa;
+}
+
+.qtdLancLabel{
+  display:block;
+  font-size: 12px;
+  font-weight: 900;
+  color:#082A48;
+  margin-bottom: 8px;
+}
+
+#qtdLancInput{
+  width: 140px;
+  height: 34px;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #b3c9df;
+  background: #fbefc1;
+  box-sizing: border-box;
+}
+
+.qtdLancHint{
+  margin-top: 8px;
+  font-size: 11px;
+  color:#475569;
+}
+
+.qtdLancFooter{
+  display:flex;
+  justify-content:flex-end;
+  gap: 10px;
+  padding: 10px 14px;
+  background:#fff;
+  border-top: 1px solid #b3c9df;
+}
+
+.btnQtd{
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #b3c9df;
+  background: #f3f6fa;
+  color: #082A48;
+  font-weight: 900;
+  cursor: pointer;
+}
+.btnQtd:hover{ background:#e9eff1; }
+
+.btnQtdPrim{
+  background:#082A48;
+  border-color:#082A48;
+  color:#fff;
+}
+.btnQtdPrim:hover{ background:#061f36; }
+
     </style>
   </head>
   <body>
@@ -2639,6 +2754,73 @@ async function configurarDiagnosticoSomenteWesley(){
   }
 }
 
+// =========================================================
+// ✅ MODAL QTD LANÇAMENTOS (substitui prompt)
+// =========================================================
+let _resolverQtdLanc = null;
+
+function abrirModalQtdLancamentos({ idManual, obra, regional, padrao = 10 }){
+  const ov = document.getElementById("qtdLancOverlay");
+  const sub = document.getElementById("qtdLancSub");
+  const inp = document.getElementById("qtdLancInput");
+
+  if(sub){
+    sub.textContent = `${formatarIdManual(idManual)} | ${obra} | ${regional}`;
+  }
+  if(inp){
+    inp.value = String(padrao);
+    setTimeout(() => inp.focus(), 50);
+  }
+
+  if(ov) ov.style.display = "flex";
+
+  return new Promise((resolve) => {
+    _resolverQtdLanc = resolve;
+  });
+}
+
+function fecharModalQtdLancamentos(){
+  const ov = document.getElementById("qtdLancOverlay");
+  if(ov) ov.style.display = "none";
+  if(_resolverQtdLanc){
+    _resolverQtdLanc(null); // cancelado
+    _resolverQtdLanc = null;
+  }
+}
+
+function confirmarModalQtdLancamentos(){
+  const inp = document.getElementById("qtdLancInput");
+  let qtd = parseInt(String(inp?.value || "").trim(), 10);
+
+  if(!Number.isFinite(qtd) || qtd <= 0){
+    alert("Digite um número válido (ex: 1, 5, 10).");
+    return;
+  }
+
+  // limite de segurança
+  if(qtd > 50) qtd = 50;
+
+  const ov = document.getElementById("qtdLancOverlay");
+  if(ov) ov.style.display = "none";
+
+  if(_resolverQtdLanc){
+    _resolverQtdLanc(qtd);
+    _resolverQtdLanc = null;
+  }
+}
+
+// deixa clicável pelo X e compatível com seu HTML inline
+window.fecharModalQtdLancamentos = fecharModalQtdLancamentos;
+window.confirmarModalQtdLancamentos = confirmarModalQtdLancamentos;
+
+// Enter confirma / Esc cancela
+document.addEventListener("keydown", (e) => {
+  const ov = document.getElementById("qtdLancOverlay");
+  if(!ov || ov.style.display !== "flex") return;
+
+  if(e.key === "Escape") fecharModalQtdLancamentos();
+  if(e.key === "Enter") confirmarModalQtdLancamentos();
+});
 
 /* =========================================================
   CONSULTA E RESUMO
@@ -3308,6 +3490,17 @@ const linhasTexto = trs.map(tr => {
         return;
       }
 
+// ✅ abre modal e recebe a quantidade (substitui prompt)
+const qtd = await abrirModalQtdLancamentos({ idManual, obra, regional, padrao: 10 });
+if (qtd === null) return; // cancelou
+
+// limite de segurança (pra não travar sem querer)
+if (qtd > 50) {
+  const ok = confirm("Você digitou um número alto. Vamos limitar em 50. Continuar?");
+  if (!ok) return;
+  qtd = 50;
+}
+
       /* 🔵 salva sempre como primeiro dia do mês */
       const agora = new Date();
       const mes = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"0")}-01`;
@@ -3352,10 +3545,13 @@ const linhasTexto = trs.map(tr => {
 
       console.log("📦 Payload enviado:", payload);
 
-      const { data, error } = await window.supabaseClient
-        .from("lancamentos")
-        .insert([payload])
-        .select();
+// ✅ cria um lote com "qtd" lançamentos iguais (zeros)
+const payloads = Array.from({ length: qtd }, () => ({ ...payload }));
+
+const { data, error } = await window.supabaseClient
+  .from("lancamentos")
+  .insert(payloads)
+  .select();
 
       if (error) {
         console.error("❌ Erro Supabase:", error);
@@ -3372,7 +3568,7 @@ const linhasTexto = trs.map(tr => {
 
       await carregarLancamentos();
 
-      alert("Lançamento salvo com sucesso!");
+     alert(`✅ ${qtd} lançamento(s) criado(s) com sucesso!`);
 
     });
 
@@ -5936,6 +6132,40 @@ function atualizarDashboardSeAberto(){
       <div id="diagResultado" class="diagResultado"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- ✅ MODAL: QUANTIDADE DE LANÇAMENTOS -->
+<div id="qtdLancOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="qtdLancTitulo">
+  <div class="qtdLancBox">
+    <div class="qtdLancHeader">
+      <div>
+        <div class="qtdLancTitle" id="qtdLancTitulo">Criar lançamentos</div>
+        <div class="qtdLancSub" id="qtdLancSub">—</div>
+      </div>
+
+      <button type="button" class="qtdLancClose" onclick="fecharModalQtdLancamentos()">✕</button>
+    </div>
+
+    <div class="qtdLancBody">
+      <label class="qtdLancLabel" for="qtdLancInput">Quantos lançamentos você deseja criar?</label>
+
+      <input
+        id="qtdLancInput"
+        type="number"
+        min="1"
+        max="50"
+        step="1"
+        value="10"
+      />
+
+      <div class="qtdLancHint">Dica: máximo 50 por segurança.</div>
+    </div>
+
+    <div class="qtdLancFooter">
+      <button type="button" class="btnQtd" onclick="fecharModalQtdLancamentos()">Cancelar</button>
+      <button type="button" class="btnQtd btnQtdPrim" onclick="confirmarModalQtdLancamentos()">Confirmar</button>
+    </div>
   </div>
 </div>
 
