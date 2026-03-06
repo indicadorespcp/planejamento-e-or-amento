@@ -311,10 +311,13 @@
         margin-top: 12px;
       }
 
-      .tabela-wrap {
-        height: calc(100vh - 260px);
-        overflow: auto;
-        position: relative;
+      .tabela-wrap{
+      height: calc(100vh - 260px) !important;  /* mantém a área com altura fixa */
+      overflow-y: auto !important;             /* ✅ força scroll vertical */
+      overflow-x: auto !important;             /* mantém scroll horizontal se precisar */
+      min-height: 0 !important;                /* ✅ evita bug de flex/altura */
+      position: relative;
+      
       }
 
       #tabelaLancamentos thead th {
