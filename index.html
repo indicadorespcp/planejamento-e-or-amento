@@ -3046,18 +3046,18 @@ let html = `
       /* =========================================================
         UI form
         ========================================================= */
-document.getElementById("btnNovo")?.addEventListener("click", async () => {
-  const form = document.getElementById("formLancamento");
-  if(!form) return;
+      document.getElementById("btnNovo")?.addEventListener("click", async () => {
+      const form = document.getElementById("formLancamento");
+      if(!form) return;
 
-  const vaiAbrir = (form.style.display === "none");
-  form.style.display = vaiAbrir ? "block" : "none";
+      const vaiAbrir = (form.style.display === "none");
+      form.style.display = vaiAbrir ? "block" : "none";
 
-  // ✅ quando abrir, carrega a lista de IDs das obras cadastradas
-  if(vaiAbrir){
-    await carregarObrasParaLancamento();
-  }
-});
+      // ✅ quando abrir, carrega a lista de IDs das obras cadastradas
+      if(vaiAbrir){
+      await carregarObrasParaLancamento();
+    }
+    });
 
       // ✅ Quando escolher o ID, preenche Obra + Regional automaticamente
       document.getElementById("idManualForm")?.addEventListener("change", () => {
@@ -3794,22 +3794,7 @@ async function autoCadastrarObraPorId(){
 
     const det = obra?.detalhes || {};
 
-    /* ===== STATUS DA OBRA (badge) ===== */
-    const badge = document.getElementById("tlBadge");
-    if (badge){
-      const concluida = _boolConcluida(det.obra_concluida);
 
-      badge.style.display = "inline-flex";
-      badge.classList.remove("ok","run");
-
-      if (concluida){
-        badge.classList.add("ok");
-        badge.textContent = "✅ CONCLUÍDA";
-      } else {
-        badge.classList.add("run");
-        badge.textContent = "⏳ EM ANDAMENTO";
-      }
-    }
 
     // ✅ pega primeiro "Início Fundações", se não tiver usa "Início de Obra"
     const dtInicio = _parseDataFlex(det.inicio_fundacoes) || _parseDataFlex(det.inicio_obra);
