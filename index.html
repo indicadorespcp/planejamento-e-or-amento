@@ -72,7 +72,7 @@
       .logo-pride {
         height: 55px;
         margin-bottom: 6px;
-        margin-left: -2px;
+        margin-left: -9px;
       }
 
       /* =========================================================
@@ -80,15 +80,17 @@
         ========================================================= */
       :root{
         --menu-fechado: 64px;
-        --menu-aberto: 210px;
+        --menu-aberto: 180px;
       }
 
       #sideMenu{
         position: fixed;
         top: 110px;
         left: -10px;
+          padding: 0 10px;     /* ✅ folga igual dos dois lados */
+  
         bottom: 20px;
-        width: var(--menu-fechado);
+        width: var(--menu-aberto);
         background: #082a48;
         border-radius: 0;
         z-index: 1500;
@@ -96,9 +98,9 @@
         transition: width .18s ease;
       }
 
-      #sideMenu:hover{
-        width: var(--menu-aberto);
-      }
+/* #sideMenu:hover{
+  width: var(--menu-aberto);
+} */
 
       .sideMenu-inner{
         height: 100%;
@@ -108,6 +110,7 @@
         gap: 10px;
         position: relative;
         justify-content: center; /* CENTRALIZA verticalmente */
+        align-items: stretch;      /* ✅ botões ocupam a largura */
       }
 
       .sideSpacer{
@@ -158,11 +161,13 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        margin: 0;
         width: 100%;
         border: none;
         background: transparent;
         cursor: pointer;
         padding: 10px 10px;
+        padding-right: 160px;  /* ✅ só direita maior */
         border-radius: 12px;
         color: #fff;
       }
@@ -175,26 +180,30 @@
         background: rgba(255,255,255,.12);
       }
 
-      #btnMenuSair{
-        position: absolute;
-        bottom: 40px;
-        left: 0;
-        right: 0;
-        margin: 0 8px;
-        height: 35px;
-        padding: 10px 10px;
-        border-radius: 12px;
-        box-sizing: border-box;
-        background: #16a34a !important;
-        color: #fff !important;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border: none !important;
-        width: auto !important;
-        max-width: none !important;
-      }
-      #btnMenuSair:hover{ background: #22c55e !important; }
+#btnMenuSair{
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  margin: 0 6px;
+  height: 35px;
+  padding: 0 10px;              /* ✅ padding normal */
+  border-radius: 12px;
+  box-sizing: border-box;
+
+  background: #E6B12E !important;
+  color: #000 !important;
+  border: none !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;       /* ✅ centraliza o texto */
+  gap: 0;
+
+  width: auto !important;
+  max-width: none !important;
+}
+#btnMenuSair:hover{ background: #E6B12E !important; }
 
       .sideIcon{
         width: 22px;
@@ -209,26 +218,28 @@
       }
 
       .sideText{
-        font-weight: 700;
-        font-size: 13px;
-        white-space: nowrap;
-        opacity: 0;
-        transform: translateX(-6px);
-        transition: opacity .12s ease, transform .12s ease;
-      }
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
 
-      #sideMenu:hover .sideText{
-        opacity: 1;
-        transform: translateX(0);
-      }
+      /* ✅ sempre visível */
+      opacity: 1;
+      transform: translateX(0);
 
-      #conteudoSistema{
-        margin-left: calc(var(--menu-fechado) - 1px);
-        transition: margin-left .18s ease;
-      }
-      #sideMenu:hover ~ #app #conteudoSistema{
-        margin-left: calc(var(--menu-aberto) - 1px);
-      }
+      transition: none;
+}
+
+
+
+#conteudoSistema{
+  margin-left: calc(var(--menu-aberto) - 1px);
+  transition: margin-left .18s ease;
+}
+
+/* não precisa mais do hover empurrando o conteúdo */
+/* #sideMenu:hover ~ #app #conteudoSistema{
+  margin-left: calc(var(--menu-aberto) - 1px);
+} */
 
       /* =========================================================
         TOP CONTROLS
@@ -2229,10 +2240,7 @@
         <div class="sideSpacer"></div>
 
         <button class="sideBtn sideBtnDanger" id="btnMenuSair" type="button">
-          <span class="sideIcon">
-            <img src="icone-sair.png" alt="Sair" class="iconPng">
-          </span>
-          <span class="sideText">Sair</span>
+        <span class="sideText">Sair</span>
         </button>
       </div>
     </div>
@@ -5058,7 +5066,6 @@ tr.innerHTML = `
     }
     } // ✅ FECHA A FUNÇÃO AQUI
 
-
       /* =========================================================
         DASHBOARD (IDA + IDF)
         ========================================================= */
@@ -5236,6 +5243,8 @@ tr.innerHTML = `
   ========================================================= */
 
 // Dashboard NÃO será mais usado
+
+
 let dashboardAberto = false;
 
 function setDisplay(id, valor){
