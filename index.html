@@ -4719,6 +4719,7 @@ async function salvarLinhaTemp(id) {
     .sort((a,b)=> Number(a)-Number(b));
 
   linha.remove();
+  voltarTabelaParaInicio(); // ✅ volta o scroll horizontal pro começo
   montarListaFiltroObras();
   aplicarFiltroGeral();
 }
@@ -6072,6 +6073,21 @@ function atualizarDashboardSeAberto(){
 })();
 
 /* =========================================================
+   ✅ VOLTAR TABELA PRO COMEÇO (após clicar em ✅ Salvar)
+   ========================================================= */
+function voltarTabelaParaInicio(){
+  const wrap = document.querySelector("#areaTabela .tabela-wrap");
+  if(!wrap) return;
+
+  // volta pro início da rolagem horizontal
+  try{
+    wrap.scrollTo({ left: 0, behavior: "smooth" });
+  }catch(e){
+    wrap.scrollLeft = 0;
+  }
+}
+
+/* =========================================================
    AUTO-SCROLL HORIZONTAL ao usar TAB/ENTER nos inputs da tabela
    (evita arrastar a barra no final)
    ========================================================= */
@@ -6299,7 +6315,6 @@ function atualizarDashboardSeAberto(){
 
   </body>
   </html>
-
 
 
 
