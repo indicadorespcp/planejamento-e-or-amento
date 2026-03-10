@@ -1716,7 +1716,7 @@
   }
 
 /* ===== Sticky direita por CLASSE (não por last-child) ===== */
-#tabelaLancamentos{ --w-acoes: 92px; --w-usuario: 92px; }
+#tabelaLancamentos{ --w-acoes: 92px; --w-usuario: 80px; }
 
 /* Cabeçalho sempre acima */
 #tabelaLancamentos thead th{
@@ -3256,11 +3256,12 @@ let html = `
         aplicarFiltroGeral();
       });
 
+ 
 
 
-      /* =========================================================
-        UI form
-        ========================================================= */
+    /* =========================================================
+       UI form
+    ========================================================= */
       document.getElementById("btnNovo")?.addEventListener("click", async () => {
       const form = document.getElementById("formLancamento");
       if(!form) return;
@@ -6069,6 +6070,59 @@ function atualizarDashboardSeAberto(){
 
   btn.addEventListener("click", fazerBackupSistema);
 })();
+
+/* =========================================================
+   AUTO-SCROLL HORIZONTAL ao usar TAB/ENTER nos inputs da tabela
+   (evita arrastar a barra no final)
+   ========================================================= */
+(function habilitarAutoScrollHorizontal(){
+  const wrap = document.querySelector(".tabela-wrap"); // seu container com overflow
+  const tabela = document.getElementById("tabelaLancamentos");
+  if(!wrap || !tabela) return;
+
+  function scrollParaElemento(el){
+    if(!el) return;
+    // traz o input para “meio” da área visível
+    el.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center"
+    });
+  }
+
+  // quando TAB/ENTER for pressionado em qualquer input/select dentro da tabela
+  tabela.addEventListener("keydown", (e) => {
+    const alvo = e.target;
+    if(!alvo) return;
+
+    const isCampo = alvo.matches("input, select, textarea");
+    if(!isCampo) return;
+
+    // só interessa se estiver dentro do tbody (linhas de edição / temp)
+    const dentroTabela = alvo.closest("#tabelaLancamentos");
+    if(!dentroTabela) return;
+
+    // TAB = anda campo / ENTER = opcional (se você quiser)
+    if(e.key !== "Tab" && e.key !== "Enter") return;
+
+    // deixa o navegador trocar o foco primeiro, depois a gente scrolla
+    setTimeout(() => {
+      const focado = document.activeElement;
+      if(!focado) return;
+      if(!focado.closest("#tabelaLancamentos")) return;
+
+      scrollParaElemento(focado);
+    }, 0);
+  });
+
+  // bônus: quando clicar/focar num campo, centraliza também
+  tabela.addEventListener("focusin", (e) => {
+    const alvo = e.target;
+    if(!alvo || !alvo.matches("input, select, textarea")) return;
+    scrollParaElemento(alvo);
+  });
+})();
+
 
 </script>
 
