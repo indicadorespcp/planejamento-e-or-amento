@@ -2475,18 +2475,18 @@
 
           <!-- ✅ FORM CADASTRAR OBRA -->
           <div class="obraFormCard obraFormCardGrid">
-    <div class="obraFormLeft">
-      <div class="obraFormTitle">Cadastrar Obra</div>
+          <div class="obraFormLeft">
+          <div class="obraFormTitle">Cadastrar Obra</div>
 
-      <input type="number" id="obraIdManual" placeholder="ID (ex: 1)" style="width:110px;">
-      <input type="text" id="obraNome" placeholder="Nome da Obra" style="width:260px;">
-      <input type="text" id="obraCidade" placeholder="Cidade" style="width:160px;">
+          <input type="number" id="obraIdManual" placeholder="ID (ex: 1)" style="width:110px;">
+          <input type="text" id="obraNome" placeholder="Nome da Obra" style="width:260px;">
+          <input type="text" id="obraCidade" placeholder="Cidade" style="width:160px;">
 
-      <select id="obraRegional" style="width:170px;">
-        <option value="">Regional...</option>
-        <option value="Curitiba">Curitiba</option>
-        <option value="Londrina">Londrina</option>
-      </select>
+          <select id="obraRegional" style="width:170px;">
+          <option value="">Regional...</option>
+          <option value="Curitiba">Curitiba</option>
+          <option value="Londrina">Londrina</option>
+        </select>
 
       <button class="btnSalvarObra" id="btnSalvarObra">Salvar Obra</button>
     </div>
@@ -6072,9 +6072,24 @@ function atualizarDashboardSeAberto(){
   btn.addEventListener("click", fazerBackupSistema);
 })();
 
+/*=========================================================
+   ✅ VOLTAR TABELA PRO COMEÇO (após clicar em ✅ Salvar)
+  ========================================================= */
+function voltarTabelaParaInicio(){
+  const wrap = document.querySelector("#areaTabela .tabela-wrap");
+  if(!wrap) return;
+
+  // volta pro início da rolagem horizontal
+  try{
+    wrap.scrollTo({ left: 0, behavior: "smooth" });
+  }catch(e){
+    wrap.scrollLeft = 0;
+  }
+}
+
 /* =========================================================
    ✅ VOLTAR TABELA PRO COMEÇO (após clicar em ✅ Salvar)
-   ========================================================= */
+  ========================================================= */
 function voltarTabelaParaInicio(){
   const wrap = document.querySelector("#areaTabela .tabela-wrap");
   if(!wrap) return;
@@ -6315,6 +6330,7 @@ function voltarTabelaParaInicio(){
 
   </body>
   </html>
+
 
 
 
