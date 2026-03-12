@@ -1119,8 +1119,6 @@
     cursor: pointer;
   }
 
-
-
   .detalhesObraClose:hover{ background: rgba(255,255,255,0.18); }
 
   .detalhesObraBody{
@@ -2162,6 +2160,9 @@
   opacity: .55;
   cursor: not-allowed;
 }
+
+
+
 
     </style>
   </head>
@@ -4599,20 +4600,25 @@ async function excluirSelecionados(){
   <td><input type="number" data-field="orcamento_termino" step="0.01"></td>
   <td><input type="number" data-field="estoque" step="0.01"></td>
 
-          <td class="tdAcoes">
-            <div class="acoesWrap">
-              <button class="btnAcao btnSalvar" onclick="salvarLinhaTemp('${tempId}')" title="Salvar">
-                <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
-              </button>
-              <button class="btnAcao btnCancelar" onclick="cancelarLinhaTemp('${tempId}')" title="Cancelar">
-                <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
-              </button>
-            </div>
-          </td>
+  <td class="tdAcoes">
+    <div class="acoesWrap">
+      <button class="btnAcao btnSalvar" onclick="salvarLinhaTemp('${tempId}')" title="Salvar">
+        <svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg>
+      </button>
+      <button class="btnAcao btnCancelar" onclick="cancelarLinhaTemp('${tempId}')" title="Cancelar">
+        <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
+      </button>
+    </div>
+  </td>
 
-          <!-- IMPORTANTE: mantém a última coluna igual ao cabeçalho (Wesley) -->
-          <td class="tdUsuarioLanc"></td>
-        `;
+  <!-- ✅ SEL (mantém a coluna durante criação) -->
+  <td class="tdSel">
+    <input type="checkbox" class="chkLancSel" disabled title="Seleção desativada durante criação">
+  </td>
+
+  <!-- IMPORTANTE: mantém a última coluna igual ao cabeçalho -->
+  <td class="tdUsuarioLanc"></td>
+`;
         linhaReferencia.after(novaLinha);
 
         novaLinha.querySelector('[data-field="id_manual"]').value = refObj.id_manual ?? "";
@@ -4816,6 +4822,11 @@ tr.innerHTML = `
         <svg viewBox="0 0 24 24"><path d="M18.3 5.71L12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.29 9.17 12 2.88 5.71 4.29 4.29l6.3 6.3 6.29-6.3z"/></svg>
       </button>
     </div>
+  </td>
+
+  <!-- ✅ SEL (mantém a coluna durante edição) -->
+  <td class="tdSel">
+    <input type="checkbox" class="chkLancSel" disabled title="Seleção desativada durante edição">
   </td>
 
   <td class="tdUsuarioLanc">${lanc.quem_lancou || ""}</td>
