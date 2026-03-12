@@ -5,7 +5,7 @@
     <title>Planejamento e Orçamento</title>
 
     <style>
-      /* =========================================================
+    /* =========================================================
         ESTILO GERAL (layout SAP / azul)
         ========================================================= */
       body {
@@ -384,7 +384,7 @@
    ========================================================= */
 
 /* larguras fixas */
-  #tabelaLancamentos{ --w-acoes: 92px; --w-usuario: 180px; }
+  #tabelaLancamentos{ --w-acoes: 92px; --w-sel: 56px; --w-usuario: 180px; }
 
 
 /* garante que o conteúdo de AÇÕES não quebre linha */
@@ -413,13 +413,45 @@
   #tabelaLancamentos th.thAcoes,
   #tabelaLancamentos td.tdAcoes{
   position: sticky;
-  right: 0;
-  z-index: 60;               /* acima do corpo, abaixo do thead */
+  right: var(--w-sel);          /* ✅ AÇÕES fica antes da SEL */
+  z-index: 70;
   background: #c9dee5;
   width: var(--w-acoes);
   min-width: var(--w-acoes);
   text-align: center;
   padding: 0 4px;
+}
+
+/* ✅ SEL (padrão): fica na direita (última coluna visível quando USUÁRIO está oculto) */
+#tabelaLancamentos th.thSel,
+#tabelaLancamentos td.tdSel{
+  position: sticky;
+  right: 0;                      /* ✅ SEL é a última */
+  z-index: 80;                   /* um pouco acima de AÇÕES */
+  background: #c9dee5;
+  width: var(--w-sel);
+  min-width: var(--w-sel);
+  text-align: center;
+  padding: 0 !important;
+}
+
+/* corpo da SEL com o mesmo fundo do bloco sticky da direita */
+#tabelaLancamentos tbody td.tdSel{
+  background: #d7e7f2;
+}
+
+  #tabelaLancamentos td.tdSel{
+  display: flex;              /* ✅ garante centro de verdade */
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+}
+
+#tabelaLancamentos .chkLancSel{
+  width: 16px;
+  height: 16px;
+  margin: 0 !important;
+  cursor: pointer;
 }
 
 /* quando Wesley: USUÁRIO aparece na direita e AÇÕES vai antes */
@@ -433,10 +465,17 @@
   min-width: var(--w-usuario);
 }
 
-  #tabelaLancamentos.modoWesley th.thAcoes,
-  #tabelaLancamentos.modoWesley td.tdAcoes{
-  right: var(--w-usuario);
-  z-index: 64;
+/* ✅ no modoWesley: SEL fica antes do USUÁRIO */
+#tabelaLancamentos.modoWesley th.thSel,
+#tabelaLancamentos.modoWesley td.tdSel{
+  right: var(--w-usuario);  /* ✅ SEL antes do USUÁRIO */
+  z-index: 82;
+}
+
+#tabelaLancamentos.modoWesley th.thAcoes,
+#tabelaLancamentos.modoWesley td.tdAcoes{
+  right: calc(var(--w-usuario) + var(--w-sel));  /* ✅ AÇÕES antes de SEL + USUÁRIO */
+  z-index: 71;
 }
 
   /* botãozinhos sempre alinhados (evita “quebrar” quando clica no +) */
@@ -1651,42 +1690,6 @@
 /* ===== Sticky direita por CLASSE (não por last-child) ===== */
 #tabelaLancamentos{ --w-acoes: 92px; --w-usuario: 80px; }
 
-/* Cabeçalho sempre acima */
-#tabelaLancamentos thead th{
-  position: sticky;
-  top: 0;
-  z-index: 200;
-}
-
-/* AÇÕES sempre sticky na direita */
-#tabelaLancamentos thead th.thAcoes,
-#tabelaLancamentos tbody td.tdAcoes{
-  position: sticky;
-  right: 0;
-  z-index: 80;            /* corpo abaixo do thead */
-  background: #b3c9df;
-  width: var(--w-acoes);
-  min-width: var(--w-acoes);
-  white-space: nowrap;
-}
-
-/* Quando Wesley: USUÁRIO sticky na direita e AÇÕES vai antes */
-#tabelaLancamentos.modoWesley thead th.thUsuarioLanc,
-#tabelaLancamentos.modoWesley tbody td.tdUsuarioLanc{
-  position: sticky;
-  right: 0;
-  z-index: 90;
-  background: #b3c9df;
-  width: var(--w-usuario);
-  min-width: var(--w-usuario);
-}
-
-#tabelaLancamentos.modoWesley thead th.thAcoes,
-#tabelaLancamentos.modoWesley tbody td.tdAcoes{
-  right: var(--w-usuario);
-  z-index: 85;
-}
-
 
 /* ===== Diagnóstico ===== */
 #diagOverlay{
@@ -2395,6 +2398,7 @@
                 <th>ESTOQUE</th>
 
                 <th class="thAcoes">Ações</th>
+                <th class="thSel">Sel.</th>
                 <th class="thUsuarioLanc" style="display:none;">USUÁRIO</th>
                 </tr>
               </thead>
@@ -3593,6 +3597,11 @@ const { data, error } = await window.supabaseClient
   </div>
 </td>
 
+<!-- ✅ SEL (nova coluna) -->
+<td class="tdSel">
+  <input type="checkbox" class="chkLancSel" data-lanc-id="${lanc.lanc_id}">
+</td>
+
 <td class="tdUsuarioLanc">
   ${lanc.quem_lancou || ""}
 </td>
@@ -3602,7 +3611,6 @@ const { data, error } = await window.supabaseClient
 
         aplicarVisibilidadeColunas();
       }
-
 
 
       /* =========================================================
