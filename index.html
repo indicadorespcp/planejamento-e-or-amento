@@ -2145,6 +2145,24 @@
   height: 22px;
 }
 
+/* ✅ Botão Excluir selecionados (Tabela) */
+#btnExcluirSelecionados{
+  height: 30px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+  font-weight: 800;
+}
+#btnExcluirSelecionados:hover{
+  background: #fecaca;
+}
+#btnExcluirSelecionados:disabled{
+  opacity: .55;
+  cursor: not-allowed;
+}
+
     </style>
   </head>
   <body>
@@ -2304,6 +2322,7 @@
           <input id="periodoAte" type="month" style="width:140px; height:35px;">
 
           <button id="btnExportar">Exportar Excel</button>
+          <button id="btnExcluirSelecionados" title="Excluir linhas marcadas">🗑️ Excluir selecionados</button>
           <button id="btnBackup" class="btnColFilter" type="button">💾 Backup</button>
           <button onclick="abrirRestaurarBackup()">📂 Restaurar Backup</button>
           <button id="btnDiagnostico"style="display:none; margin-left:10px;"onclick="abrirDiagnostico()">🔎 Diagnóstico</button>
@@ -3582,12 +3601,6 @@ const { data, error } = await window.supabaseClient
       </svg>
     </button>
 
-    <button class="btnAcao btnExcluir" onclick="excluirLancamento(${lanc.lanc_id})" title="Excluir">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6 7h12l-1 14H7L6 7z"></path>
-        <path d="M9 4h6l1 2H8l1-2z"></path>
-      </svg>
-    </button>
 
     <button class="btnAcao btnAdicionar" onclick="adicionarLinhaAbaixo(${lanc.lanc_id})" title="Adicionar abaixo">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -4467,6 +4480,67 @@ async function autoCadastrarObraPorId(){
         }
       }
       window.excluirLancamento = excluirLancamento;
+
+
+      // =========================================================
+// 🗑️ EXCLUIR SELECIONADOS (Tabela)
+// =========================================================
+async function excluirSelecionados(){
+  try{
+    const checks = Array.from(document.querySelectorAll("#tabelaLancamentos tbody .chkLancSel:checked"));
+    if(!checks.length){
+      alert("Selecione pelo menos 1 linha na coluna SEL.");
+      return;
+    }
+
+    const ids = checks
+      .map(chk => chk.closest("tr")?.getAttribute("data-lanc-id"))
+      .map(v => Number(v))
+      .filter(n => Number.isFinite(n) && n > 0);
+
+    if(!ids.length){
+      alert("Não encontrei os IDs das linhas selecionadas.");
+      return;
+    }
+
+    const ok = confirm(`Deseja excluir ${ids.length} lançamento(s) selecionado(s)?`);
+    if(!ok) return;
+
+    const btn = document.getElementById("btnExcluirSelecionados");
+    if(btn){ btn.disabled = true; btn.textContent = "Excluindo..."; }
+
+    const { error } = await window.supabaseClient
+      .from("lancamentos")
+      .delete()
+      .in("lanc_id", ids);
+
+    if(error){
+      console.error(error);
+      alert("Erro ao excluir selecionados. Veja o console (F12).");
+      return;
+    }
+
+    // remove do cache local (evita recarregar tudo se você preferir)
+    window.listaLancamentos = (window.listaLancamentos || []).filter(l => !ids.includes(Number(l.lanc_id)));
+
+    // redesenha
+    aplicarFiltroGeral();
+
+    alert(`✅ ${ids.length} lançamento(s) excluído(s).`);
+  } finally {
+    const btn = document.getElementById("btnExcluirSelecionados");
+    if(btn){ btn.disabled = false; btn.textContent = "🗑️ Excluir selecionados"; }
+  }
+}
+
+// bind (UMA VEZ)
+(function bindExcluirSelecionadosOnce(){
+  const btn = document.getElementById("btnExcluirSelecionados");
+  if(!btn) return;
+  if(btn.dataset.bound === "1") return;
+  btn.dataset.bound = "1";
+  btn.addEventListener("click", excluirSelecionados);
+})();
 
       /* =========================================================
         ➕ ADICIONAR LINHA ABAIXO (LANÇAMENTOS)
