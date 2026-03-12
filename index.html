@@ -360,73 +360,6 @@
       th:nth-child(17), td:nth-child(17) { width: 120px; }                       /* IDF */
 
 
-  /* =========================================================
-   FIX: LARGURAS + STICKY DIREITA (AÇÕES/USUÁRIO) SEM BUGAR O +
-   Cole no final da seção TABELA
-   ========================================================= */
-
-/* Ajuste de larguras corretas das 2 últimas colunas (agora são AÇÕES e USUÁRIO) */
-  #tabelaLancamentos { --w-acoes: 86px; --w-usuario: 180px; }
-
-/* Sobrescreve as larguras antigas (16/17 eram IDA/IDF antes) */
-  #tabelaLancamentos thead th.thAcoes,
-  #tabelaLancamentos tbody td.tdAcoes{
-  width: var(--w-acoes) !important;
-  min-width: var(--w-acoes) !important;
-}
-
-  #tabelaLancamentos thead th.thUsuarioLanc,
-  #tabelaLancamentos tbody td.tdUsuarioLanc{
-  width: var(--w-usuario) !important;
-  min-width: var(--w-usuario) !important;
-}
-
-  /* Cabeçalho sempre acima de qualquer sticky do corpo */
-  #tabelaLancamentos thead th{
-  z-index: 200 !important;
-}
-
-/* Sticky direita - padrão (sem Wesley): só AÇÕES fica na direita */
-  #tabelaLancamentos thead th.thAcoes,
-  #tabelaLancamentos tbody td.tdAcoes{
-  position: sticky;
-  right: 0;
-  z-index: 60;                 /* abaixo do cabeçalho (200) */
-  background: #c9dee5;         /* igual seu THEAD */
-}
-
-  /* Quando Wesley: USUÁRIO aparece na direita e AÇÕES fica antes dele */
-  #tabelaLancamentos.modoWesley thead th.thUsuarioLanc,
-  #tabelaLancamentos.modoWesley tbody td.tdUsuarioLanc{
-  position: sticky;
-  right: 0;
-  z-index: 70;                 /* um pouco acima do tdAcoes */
-  background: #c9dee5;
-}
-
-  #tabelaLancamentos.modoWesley thead th.thAcoes,
-  #tabelaLancamentos.modoWesley tbody td.tdAcoes{
-  right: var(--w-usuario);
-  z-index: 60;
-}
-
-/*IMPORTANTE: no corpo, garantir fundo na célula sticky
-  (evita “transparência” e sobreposição estranha no scroll) */
-  #tabelaLancamentos tbody td.tdAcoes,
-  #tabelaLancamentos tbody td.tdUsuarioLanc{
-  background: #d7e7f2;
-  }
-
-  /* Separador visual */
-  #tabelaLancamentos thead th.thAcoes,
-  #tabelaLancamentos tbody td.tdAcoes,
-  #tabelaLancamentos thead th.thUsuarioLanc,
-  #tabelaLancamentos tbody td.tdUsuarioLanc{
-  border-left: 2px solid #c7cdd4;
-  box-shadow: -1px 0 0 #e5e7eb;
-}
-
-
       /* =========================================================
         RODAPÉ FIXO
         ========================================================= */
@@ -453,19 +386,19 @@
 /* larguras fixas */
   #tabelaLancamentos{ --w-acoes: 92px; --w-usuario: 180px; }
 
+
 /* garante que o conteúdo de AÇÕES não quebre linha */
   #tabelaLancamentos td.tdAcoes,
   #tabelaLancamentos th.thAcoes{
   white-space: nowrap;
 }
 
-/* cabeçalho sempre acima */
+
+  /* Cabeçalho sempre acima de qualquer sticky do corpo */
   #tabelaLancamentos thead th{
-  position: sticky;
-  top: 0;
-  z-index: 90;
-  background: #c9dee5;
+  z-index: 200 !important;
 }
+
 
 /* ===== FIX: cabeçalho das colunas fixas da ESQUERDA sempre por cima ===== */
 #tabelaLancamentos thead th:nth-child(1),
@@ -6330,7 +6263,6 @@ function voltarTabelaParaInicio(){
 
   </body>
   </html>
-
 
 
 
