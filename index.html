@@ -436,7 +436,7 @@
 }
 
 /* corpo da SEL com o mesmo fundo do bloco sticky da direita */
-#tabelaLancamentos tbody td.tdSel{
+  #tabelaLancamentos tbody td.tdSel{
   background: #a5c8dc;
 }
 
@@ -447,7 +447,7 @@
   padding: 0 !important;
 }
 
-#tabelaLancamentos .chkLancSel{
+  #tabelaLancamentos .chkLancSel{
   width: 16px;
   height: 16px;
   margin: 0 !important;
@@ -948,23 +948,23 @@
     ========================================================= */
 
   #tabelaObras{
-    width: 100%;
-    table-layout: auto; /* <<< isso aqui é o que resolve o "vazio" */
+  width: 100%;
+  table-layout: auto; /* <<< isso aqui é o que resolve o "vazio" */
   }
 
   /* células */
   #tabelaObras th, 
   #tabelaObras td{
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   }
 
   /* larguras por coluna (ID, NOME, CIDADE, REGIONAL, STATUS, AÇÕES, SEL) */
   #tabelaObras th:nth-child(1),
   #tabelaObras td:nth-child(1){
-    width: 60px;
-    text-align: center;
+  width: 60px;
+  text-align: center;
   }
 
   #tabelaObras th:nth-child(2),
@@ -5586,7 +5586,7 @@ function atualizarDashboardSeAberto(){
       return;
     }
 
-    // atualiza cache local e UI
+  // atualiza cache local e UI
   const idx = (obrasCache || []).findIndex(o => o.obra_id === obraDetalhesAbertaId);
   if(idx >= 0) obrasCache[idx].detalhes = obj;
 
