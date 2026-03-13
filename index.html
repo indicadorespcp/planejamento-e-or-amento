@@ -463,6 +463,9 @@
   background: #a5c8dc;
   width: var(--w-usuario);
   min-width: var(--w-usuario);
+
+  text-align: center !important;
+  vertical-align: middle;
 }
 
 /* ✅ no modoWesley: SEL fica antes do USUÁRIO */
@@ -2548,7 +2551,7 @@
 let obrasCadastroMap = new Map(); // id_manual (Number) -> { nome_obra, regional }
 
 async function carregarObrasParaLancamento(){
-  const { data, error } = await window.supabaseClient
+const { data, error } = await window.supabaseClient
     .from("obras_cadastro")
     .select("id_manual, nome_obra, regional")
     .order("id_manual", { ascending: true });
@@ -3210,9 +3213,6 @@ let html = `
         aplicarFiltroGeral();
       });
 
- 
-
-
     /* =========================================================
        UI form
     ========================================================= */
@@ -3638,15 +3638,15 @@ const { data, error } = await window.supabaseClient
         const todas = (obrasSelecionadas.size === 0);
 
         const filtrado = (window.listaLancamentos || []).filter(l => {
-          let obraOk = true;
-          if (nenhuma) obraOk = false;
-          else if (!todas) obraOk = obrasSelecionadas.has(l.obra);
+        let obraOk = true;
+        if (nenhuma) obraOk = false;
+        else if (!todas) obraOk = obrasSelecionadas.has(l.obra);
 
-          const mesRegistro = (l.mes || "").toString().slice(0, 10);
-          const deOk = !deISO || (mesRegistro >= deISO);
-          const ateOk = !ateISO || (mesRegistro < proxMesISO(ateISO));
+        const mesRegistro = (l.mes || "").toString().slice(0, 10);
+        const deOk = !deISO || (mesRegistro >= deISO);
+        const ateOk = !ateISO || (mesRegistro < proxMesISO(ateISO));
 
-          return obraOk && deOk && ateOk;
+        return obraOk && deOk && ateOk;
         });
 
         renderizarTabela(filtrado);
@@ -3978,6 +3978,7 @@ async function autoCadastrarObraPorId(){
     const eLbl = document.getElementById("tlEndLbl");
 
     const det = obra?.detalhes || {};
+    const badge = document.getElementById("tlBadge");
 
 
 
