@@ -406,7 +406,7 @@
 #tabelaLancamentos thead th:nth-child(3),
 #tabelaLancamentos thead th:nth-child(4){
   z-index: 9999 !important;
-  background: #c9dee5 !important;
+  background: #a5c8dc !important;
 }
 
 /* AÇÕES (padrão): fica na direita */
@@ -415,7 +415,7 @@
   position: sticky;
   right: var(--w-sel);          /* ✅ AÇÕES fica antes da SEL */
   z-index: 70;
-  background: #c9dee5;
+  background: #a5c8dc;
   width: var(--w-acoes);
   min-width: var(--w-acoes);
   text-align: center;
@@ -428,7 +428,7 @@
   position: sticky;
   right: 0;                      /* ✅ SEL é a última */
   z-index: 80;                   /* um pouco acima de AÇÕES */
-  background: #c9dee5;
+  background: #a5c8dc;
   width: var(--w-sel);
   min-width: var(--w-sel);
   text-align: center;
@@ -437,7 +437,7 @@
 
 /* corpo da SEL com o mesmo fundo do bloco sticky da direita */
 #tabelaLancamentos tbody td.tdSel{
-  background: #d7e7f2;
+  background: #a5c8dc;
 }
 
   #tabelaLancamentos td.tdSel{
@@ -460,7 +460,7 @@
   position: sticky;
   right: 0;
   z-index: 65;
-  background: #c9dee5;
+  background: #a5c8dc;
   width: var(--w-usuario);
   min-width: var(--w-usuario);
 }
@@ -496,15 +496,15 @@
   box-shadow: -1px 0 0 #e5e7eb;
   }
 
-      #tabelaLancamentos tbody td:nth-child(1) { position: sticky; left: 0;   z-index: 25; background:#ccdce7; }
-      #tabelaLancamentos tbody td:nth-child(2) { position: sticky; left: 50px;  z-index: 25; background:#ccdce7; }
-      #tabelaLancamentos tbody td:nth-child(3) { position: sticky; left: 250px; z-index: 25; background:#ccdce7; }
-      #tabelaLancamentos tbody td:nth-child(4) { position: sticky; left: 327px; z-index: 25; background:#ccdce7; }
+    #tabelaLancamentos tbody td:nth-child(1) { position: sticky; left: 0;   z-index: 25; background:#b3c9df; }
+    #tabelaLancamentos tbody td:nth-child(2) { position: sticky; left: 50px;  z-index: 25; background:#b3c9df; }
+    #tabelaLancamentos tbody td:nth-child(3) { position: sticky; left: 250px; z-index: 25; background:#b3c9df; }
+    #tabelaLancamentos tbody td:nth-child(4) { position: sticky; left: 327px; z-index: 25; background:#b3c9df; }
 
-      #tabelaLancamentos thead th:nth-child(1) { position: sticky; left: 0;   z-index: 80; background:#b3c9df; }
-      #tabelaLancamentos thead th:nth-child(2) { position: sticky; left: 50px;  z-index: 80; background:#b3c9df; }
-      #tabelaLancamentos thead th:nth-child(3) { position: sticky; left: 250px; z-index: 80; background:#b3c9df; }
-      #tabelaLancamentos thead th:nth-child(4) { position: sticky; left: 327px; z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(1) { position: sticky; left: 0;   z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(2) { position: sticky; left: 50px;  z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(3) { position: sticky; left: 250px; z-index: 80; background:#b3c9df; }
+    #tabelaLancamentos thead th:nth-child(4) { position: sticky; left: 327px; z-index: 80; background:#b3c9df; }
 
       #tabelaLancamentos tbody td:nth-child(4),
       #tabelaLancamentos thead th:nth-child(4) {
@@ -1021,7 +1021,7 @@
   #tabelaObras tbody td:nth-child(3),
   #tabelaObras tbody td:nth-child(4),
   #tabelaObras tbody td:nth-child(5){
-    background:#ccdce7;
+    background: #b3c9df;
   }
 
   #tabelaObras thead th:nth-child(1),
@@ -2161,9 +2161,6 @@
   cursor: not-allowed;
 }
 
-
-
-
     </style>
   </head>
   <body>
@@ -2545,7 +2542,7 @@
           auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
         });
 
-        // =========================================
+// =========================================
 // OBRAS CADASTRADAS -> SELECT do ID (Tabela)
 // =========================================
 let obrasCadastroMap = new Map(); // id_manual (Number) -> { nome_obra, regional }
@@ -3272,7 +3269,7 @@ let idxVisiveis = ths
 
 const idxExport = idxVisiveis.filter(i => {
   const nome = (ths[i]?.innerText || "").toUpperCase();
-  return !nome.includes("AÇÕES") && !nome.includes("USUÁRIO");
+  return !nome.includes("AÇÕES") && !nome.includes("USUÁRIO") && !nome.includes("SEL");
 });
 const headers = idxExport.map(i =>
   (ths[i]?.innerText || "").replace(/\s+/g, " ").trim()
@@ -4636,7 +4633,7 @@ async function excluirSelecionados(){
       }
       window.cancelarLinhaTemp = cancelarLinhaTemp;
 
-async function salvarLinhaTemp(id) {
+  async function salvarLinhaTemp(id) {
   const linha = document.getElementById(id);
   if (!linha) return;
 
@@ -4645,7 +4642,7 @@ async function salvarLinhaTemp(id) {
   const regional = (linha.querySelector('[data-field="regional"]')?.value || "").trim();
   const mes = normalizarMesISO(linha.querySelector('[data-field="mes"]')?.value || "");
 
-  const medicoes_meta_controladoria   = parseFloat(linha.querySelector('[data-field="medicoes_meta_controladoria"]')?.value || 0);
+  const medicoes_meta_controladoria  = parseFloat(linha.querySelector('[data-field="medicoes_meta_controladoria"]')?.value || 0);
   const cronograma_fre               = parseFloat(linha.querySelector('[data-field="cronograma_fre"]')?.value || 0);
   const medicoes_realizadas_mes      = parseFloat(linha.querySelector('[data-field="medicoes_realizadas_mes"]')?.value || 0);
   const projecao_mes                 = parseFloat(linha.querySelector('[data-field="projecao_mes"]')?.value || 0);
@@ -4692,12 +4689,17 @@ async function salvarLinhaTemp(id) {
   return `${dia}/${mes}/${ano} às ${hora}:${min}h`;
 }
 
+// ✅ pega o usuário logado (para gravar quem lançou)
+const { data: sessData } = await window.supabaseClient.auth.getSession();
+const emailLogado = (sessData?.session?.user?.email || "").toLowerCase().trim();
+const quem_lancou = (emailLogado.split("@")[0] || "").trim();
+
   const payload = {
     id_manual: idManual,
     obra,
     regional,
     mes,
-
+    quem_lancou,
     medicoes_meta_controladoria,
     cronograma_fre,
     medicoes_realizadas_mes,
@@ -5285,22 +5287,23 @@ function fecharTodosPainisFiltro(){
 }
 
 function abrirTabela(){
-  dashboardAberto = false;
-  marcarMenuAtivo("btnMenuTabela");
+dashboardAberto = false;
+marcarMenuAtivo("btnMenuTabela");
 
-  setDisplay("cadastroObras", "none");
-  setDisplay("dashboard", "none");   // mantém escondido
-  setDisplay("areaTabela", "block");
+setDisplay("cadastroObras", "none");
+setDisplay("dashboard", "none");   // mantém escondido
+setDisplay("areaTabela", "block");
 
-  setDisplay("btnNovo", "inline-block");
-  setDisplay("obraFilterWrap", "inline-block");
-  setDisplay("colFilterWrap", "inline-block");
-  setDisplay("periodoDe", "inline-block");
-  setDisplay("periodoAte", "inline-block");
-  setDisplay("btnExportar", "inline-block");
-  setDisplay("btnLimparFiltros", "inline-block");
+setDisplay("btnNovo", "inline-block");
+setDisplay("obraFilterWrap", "inline-block");
+setDisplay("colFilterWrap", "inline-block");
+setDisplay("periodoDe", "inline-block");
+setDisplay("periodoAte", "inline-block");
+setDisplay("btnExportar", "inline-block");
+setDisplay("btnExcluirSelecionados", "inline-block");
+setDisplay("btnLimparFiltros", "inline-block");
 
-  fecharTodosPainisFiltro();
+fecharTodosPainisFiltro();
 
   // segurança: se existir, destrói. Se não existir, não faz nada.
   if (typeof destruirCharts === "function") destruirCharts();
@@ -5326,6 +5329,7 @@ function abrirCadastroObras(){
   setDisplay("periodoDe", "none");
   setDisplay("periodoAte", "none");
   setDisplay("btnExportar", "none");
+  setDisplay("btnExcluirSelecionados", "none");
   setDisplay("btnLimparFiltros", "none");
 
   fecharTodosPainisFiltro();
