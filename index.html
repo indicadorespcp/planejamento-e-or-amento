@@ -5052,7 +5052,7 @@ const quem_lancou = (emailLogado.split("@")[0] || "").trim();
         const email = (document.getElementById("loginEmail")?.value || "").trim();
         if (!email) { setLoginMsg("Digite seu email acima para receber o link de recuperação."); return; }
         setLoginMsg("");
-        const redirectTo = `${location.origin}${location.pathname}`;
+        const redirectTo = "http://127.0.0.1:5500/index.html?reset=1";
 
         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
         if (error) {console.error(error);setLoginMsg(error.message || "Erro ao enviar e-mail de recuperação.");return;}
@@ -5096,32 +5096,52 @@ const quem_lancou = (emailLogado.split("@")[0] || "").trim();
         location.reload();
       });
 
-      window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        if (event === "PASSWORD_RECOVERY") { mostrarResetSenha(); return; }
-        if (session) { mostrarSistema(); } else { mostrarLogin(); }
-      });
+window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  const ehTelaReset =
+    location.search.includes("reset=1") ||
+    location.hash.includes("type=recovery");
 
-    async function checarSessaoInicial(){
-    const { data, error } = await window.supabaseClient.auth.getSession();
-    if(error){
+  if (event === "PASSWORD_RECOVERY" || ehTelaReset) {
+    mostrarResetSenha();
+    return;
+  }
+
+  if (session) {
+    mostrarSistema();
+  } else {
+    mostrarLogin();
+  }
+});
+
+async function checarSessaoInicial(){
+  const ehTelaReset =
+    location.search.includes("reset=1") ||
+    location.hash.includes("type=recovery");
+
+  if (ehTelaReset) {
+    mostrarResetSenha();
+    return;
+  }
+
+  const { data, error } = await window.supabaseClient.auth.getSession();
+  if(error){
     console.error(error);
     mostrarLogin();
     return;
-    }
+  }
 
-    const session = data?.session;
+  const session = data?.session;
 
-    if (session) {
+  if (session) {
     mostrarSistema();
     await configurarDiagnosticoSomenteWesley();
     await carregarLancamentos();
     await carregarObrasParaLancamento();
     abrirTabela();
-    } else {
+  } else {
     mostrarLogin();
-    }
-    } // ✅ FECHA A FUNÇÃO AQUI
-
+  }
+}
       /* =========================================================
         DASHBOARD (IDA + IDF)
         ========================================================= */
