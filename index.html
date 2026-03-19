@@ -87,7 +87,7 @@
         position: fixed;
         top: 110px;
         left: -10px;
-          padding: 0 10px;     /* ✅ folga igual dos dois lados */
+        padding: 0 10px;     /* ✅ folga igual dos dois lados */
   
         bottom: 20px;
         width: var(--menu-aberto);
@@ -98,9 +98,9 @@
         transition: width .18s ease;
       }
 
-/* #sideMenu:hover{
-  width: var(--menu-aberto);
-} */
+    /* #sideMenu:hover{
+    width: var(--menu-aberto);
+    } */
 
       .sideMenu-inner{
         height: 100%;
@@ -696,7 +696,6 @@
       }
 
       .passwordWrap{ position: relative; }
-
       .btnEye{
         position: absolute;
         right: 6px;
@@ -2445,7 +2444,7 @@
           <option value="Londrina">Londrina</option>
         </select>
 
-      <button class="btnSalvarObra" id="btnSalvarObra">Salvar Obra</button>
+      <button class="btnSalvarObra" id="btnSalvarObra">Continuar</button>
     </div>
 
     <!-- ✅ TIMELINE (lado direito) -->
@@ -3475,16 +3474,16 @@ const linhasTexto = trs.map(tr => {
         return;
       }
 
-// ✅ abre modal e recebe a quantidade (substitui prompt)
-const qtd = await abrirModalQtdLancamentos({ idManual, obra, regional, padrao: 10 });
-if (qtd === null) return; // cancelou
+    // ✅ abre modal e recebe a quantidade (substitui prompt)
+    const qtd = await abrirModalQtdLancamentos({ idManual, obra, regional, padrao: 10 });
+    if (qtd === null) return; // cancelou
 
-// limite de segurança (pra não travar sem querer)
-if (qtd > 50) {
-  const ok = confirm("Você digitou um número alto. Vamos limitar em 50. Continuar?");
-  if (!ok) return;
-  qtd = 50;
-}
+    // limite de segurança (pra não travar sem querer)
+    if (qtd > 50) {
+    const ok = confirm("Você digitou um número alto. Vamos limitar em 50. Continuar?");
+    if (!ok) return;
+    qtd = 50;
+    }
 
       /* 🔵 salva sempre como primeiro dia do mês */
       const agora = new Date();
@@ -3530,13 +3529,13 @@ if (qtd > 50) {
 
       console.log("📦 Payload enviado:", payload);
 
-// ✅ cria um lote com "qtd" lançamentos iguais (zeros)
-const payloads = Array.from({ length: qtd }, () => ({ ...payload }));
+      // ✅ cria um lote com "qtd" lançamentos iguais (zeros)
+      const payloads = Array.from({ length: qtd }, () => ({ ...payload }));
 
-const { data, error } = await window.supabaseClient
-  .from("lancamentos")
-  .insert(payloads)
-  .select();
+      const { data, error } = await window.supabaseClient
+      .from("lancamentos")
+      .insert(payloads)
+      .select();
 
       if (error) {
         console.error("❌ Erro Supabase:", error);
@@ -3736,38 +3735,51 @@ if (thUser) thUser.style.display = isWesley ? "" : "none";
         const regional = (document.getElementById("obraRegional")?.value || "").trim();
 
         if (!Number.isInteger(idManual) || idManual <= 0) {
-          alert("Preencha um ID válido (ex: 1, 2, 3...).");
-          return;
-        }
-        if (!nome || !cidade || !regional) {
-          alert("Preencha Nome da Obra, Cidade e Regional!");
-          return;
-        }
+        alert("Preencha um ID válido (ex: 1, 2, 3...).");
+        return;
+      }
 
-        const payload = {
-          id_manual: idManual,
-          nome_obra: nome,
-          cidade: cidade,
-          regional: regional
-        };
+    if (!nome || !cidade || !regional) {
+    alert("Preencha Nome da Obra, Cidade e Regional!");
+    return;
+    }
 
-        const { error } = await window.supabaseClient
-          .from("obras_cadastro")
-          .upsert(payload, { onConflict: "id_manual" });
+    const payload = {
+    id_manual: idManual,
+    nome_obra: nome,
+    cidade: cidade,
+    regional: regional
+    };
 
-        if (error) {
-          console.error("ERRO SUPABASE (obras_cadastro):", error);
-          alert("Erro ao salvar obra: " + (error?.message || "ver console (F12)"));
-          return;
-        }
+    const { data: obraSalva, error } = await window.supabaseClient
+    .from("obras_cadastro")
+    .upsert(payload, { onConflict: "id_manual" })
+    .select()
+    .single();
 
-        document.getElementById("obraIdManual").value = "";
-        document.getElementById("obraNome").value = "";
-        document.getElementById("obraCidade").value = "";
-        document.getElementById("obraRegional").value = "";
+    if (error) {
+    console.error("ERRO SUPABASE (obras_cadastro):", error);
+    alert("Erro ao salvar obra: " + (error?.message || "ver console (F12)"));
+    return;
+   }
 
-        carregarObras();
-      });
+    document.getElementById("obraIdManual").value = "";
+    document.getElementById("obraNome").value = "";
+    document.getElementById("obraCidade").value = "";
+    document.getElementById("obraRegional").value = "";
+
+    await carregarObras();
+
+    const obraAtual =
+    (obrasCache || []).find(o => Number(o.obra_id) === Number(obraSalva?.obra_id)) ||
+    (obrasCache || []).find(o => Number(o.id_manual) === Number(idManual));
+
+    if (obraAtual) {
+    abrirDetalhesObra(obraAtual.obra_id);
+    } else {
+    alert("Obra salva com sucesso, mas não consegui abrir os detalhes automaticamente.");
+    }
+    });
 
       /* =========================================================
         ✅ CADASTRO DE OBRAS: CARREGAR + SALVAR + AÇÕES
@@ -3802,58 +3814,58 @@ if (thUser) thUser.style.display = isWesley ? "" : "none";
     };
 
     function normId3(v){
-  const n = String(v ?? "").trim();
-  if(!n) return "";
-  const num = Number(n);
-  if(!Number.isFinite(num)) return "";
-  return String(num).padStart(3,"0"); // 94 -> "094"
-}
+    const n = String(v ?? "").trim();
+    if(!n) return "";
+    const num = Number(n);
+    if(!Number.isFinite(num)) return "";
+    return String(num).padStart(3,"0"); // 94 -> "094"
+    }
 
-async function autoCadastrarObraPorId(){
-  const inpId = document.getElementById("obraIdManual");
-  const inpNome = document.getElementById("obraNome");
-  const inpCidade = document.getElementById("obraCidade");
-  const selRegional = document.getElementById("obraRegional");
+    async function autoCadastrarObraPorId(){
+    const inpId = document.getElementById("obraIdManual");
+    const inpNome = document.getElementById("obraNome");
+    const inpCidade = document.getElementById("obraCidade");
+    const selRegional = document.getElementById("obraRegional");
 
-  const id3 = normId3(inpId?.value);
-  if(!id3) return;
+    const id3 = normId3(inpId?.value);
+    if(!id3) return;
 
-  const preset = OBRAS_PRESET[id3];
-  if(!preset) return; // não faz nada se não tiver na lista
+    const preset = OBRAS_PRESET[id3];
+    if(!preset) return; // não faz nada se não tiver na lista
 
-  // preenche UI
-  if(inpNome) inpNome.value = preset.nome_obra || "";
-  if(inpCidade) inpCidade.value = preset.cidade || "";
-  if(selRegional) selRegional.value = preset.regional || "";
+    // preenche UI
+    if(inpNome) inpNome.value = preset.nome_obra || "";
+    if(inpCidade) inpCidade.value = preset.cidade || "";
+    if(selRegional) selRegional.value = preset.regional || "";
 
-  // salva direto no Supabase (upsert)
-  const payload = {
+    // salva direto no Supabase (upsert)
+    const payload = {
     id_manual: Number(id3),          // mantém como número na tabela
     nome_obra: preset.nome_obra,
     cidade: preset.cidade,
     regional: preset.regional
-  };
+    };
 
-  const { error } = await window.supabaseClient
+    const { error } = await window.supabaseClient
     .from("obras_cadastro")
     .upsert(payload, { onConflict: "id_manual" });
 
-  if(error){
+    if(error){
     console.error("AUTO-CADASTRO ERRO:", error);
     alert("Não consegui cadastrar automaticamente. Veja o console (F12).");
     return;
-  }
+    }
 
-  // atualiza tabela de obras e limpa campos (opcional)
-  await carregarObras();
-  if(inpId) inpId.value = "";
-  if(inpNome) inpNome.value = "";
-  if(inpCidade) inpCidade.value = "";
-  if(selRegional) selRegional.value = "";
+    // atualiza tabela de obras e limpa campos (opcional)
+    await carregarObras();
+    if(inpId) inpId.value = "";
+    if(inpNome) inpNome.value = "";
+    if(inpCidade) inpCidade.value = "";
+    if(selRegional) selRegional.value = "";
 
-  // se quiser uma mensagem discreta
-  // alert(`✅ Obra ${id3} cadastrada: ${preset.nome_obra}`);
-}
+    // se quiser uma mensagem discreta
+    // alert(`✅ Obra ${id3} cadastrada: ${preset.nome_obra}`);
+    }
 
     function _parseDataFlex(v){
     const s0 = String(v ?? "").trim();
@@ -3869,24 +3881,24 @@ async function autoCadastrarObraPorId(){
     // aceita MMM-YY (pt-br) ex: ABR-21, SET-23
     const m = s.match(/^([A-ZÇ]{3})[-\/](\d{2}|\d{4})$/);
     if(m){
-      const mesTxt = m[1];
-      const anoTxt = m[2];
+    const mesTxt = m[1];
+    const anoTxt = m[2];
 
-      const meses = {
-        JAN:0, FEV:1, MAR:2, ABR:3, MAI:4, JUN:5,
-        JUL:6, AGO:7, SET:8, OUT:9, NOV:10, DEZ:11
-      };
+    const meses = {
+    JAN:0, FEV:1, MAR:2, ABR:3, MAI:4, JUN:5,
+    JUL:6, AGO:7, SET:8, OUT:9, NOV:10, DEZ:11
+    };
 
-      const mm = meses[mesTxt];
-      if(mm === undefined) return null;
+    const mm = meses[mesTxt];
+    if(mm === undefined) return null;
 
-      let yy = Number(anoTxt);
-      if(String(anoTxt).length === 2){
-        yy = (yy <= 79) ? (2000 + yy) : (1900 + yy);
-      }
+    let yy = Number(anoTxt);
+    if(String(anoTxt).length === 2){
+    yy = (yy <= 79) ? (2000 + yy) : (1900 + yy);
+    }
 
-      const d = new Date(yy, mm, 1);
-      return isNaN(d.getTime()) ? null : d;
+    const d = new Date(yy, mm, 1);
+    return isNaN(d.getTime()) ? null : d;
     }
 
     // tenta Date normal
@@ -3895,25 +3907,25 @@ async function autoCadastrarObraPorId(){
   }
 
   function _fmtMesAno(d){
-    if(!d) return "—";
-    const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-    return `${meses[d.getMonth()]}-${d.getFullYear()}`;
+  if(!d) return "—";
+  const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+  return `${meses[d.getMonth()]}-${d.getFullYear()}`;
   }
 
   function _boolConcluida(v){
-    const s0 = String(v ?? "").trim();
-    if(!s0) return false;
+  const s0 = String(v ?? "").trim();
+  if(!s0) return false;
 
-    const s = s0.toUpperCase();
+  const s = s0.toUpperCase();
 
-    // aceita SIM / S / OK / TRUE / 1
-    if (s === "SIM" || s === "S" || s === "OK" || s === "TRUE" || s === "1") return true;
+  // aceita SIM / S / OK / TRUE / 1
+  if (s === "SIM" || s === "S" || s === "OK" || s === "TRUE" || s === "1") return true;
 
-    // aceita qualquer texto que contenha "CONCLUI"
-    // (pega "concluída", "concluida", "concluído", "concluido", etc)
-    if (s.includes("CONCLUI")) return true;
+  // aceita qualquer texto que contenha "CONCLUI"
+  // (pega "concluída", "concluida", "concluído", "concluido", etc)
+  if (s.includes("CONCLUI")) return true;
 
-    return false;
+  return false;
   }
 
   function _mesesRestantes(agora, fim){
@@ -3968,7 +3980,7 @@ async function autoCadastrarObraPorId(){
     return { concluida, statusTxt, statusBg, statusTitle, statusColor };
   }
 
-  function renderTimelineDaObra(obra){
+    function renderTimelineDaObra(obra){
     const wrap = document.getElementById("timelineWrap");
     const empty = document.getElementById("tlEmptyMsg");
     const meta = document.getElementById("tlMeta");
@@ -3979,8 +3991,6 @@ async function autoCadastrarObraPorId(){
 
     const det = obra?.detalhes || {};
     const badge = document.getElementById("tlBadge");
-
-
 
     // ✅ pega primeiro "Início Fundações", se não tiver usa "Início de Obra"
     const dtInicio = _parseDataFlex(det.inicio_fundacoes) || _parseDataFlex(det.inicio_obra);
@@ -4117,7 +4127,6 @@ async function autoCadastrarObraPorId(){
 
   bindCliqueLinhaTabelaObras();
 
-
   function renderizarTabelaObras(lista) {
     const tbody = document.querySelector("#tabelaObras tbody");
     if (!tbody) return;
@@ -4131,7 +4140,6 @@ async function autoCadastrarObraPorId(){
 
       const tr = document.createElement("tr");
       tr.setAttribute("data-obra-id", obra.obra_id);
-
 
 
   // ===== STATUS (TABELA) =====
@@ -4480,12 +4488,11 @@ async function autoCadastrarObraPorId(){
       }
       window.excluirLancamento = excluirLancamento;
 
-
-      // =========================================================
-// 🗑️ EXCLUIR SELECIONADOS (Tabela)
-// =========================================================
-async function excluirSelecionados(){
-  try{
+    // =========================================================
+    // 🗑️ EXCLUIR SELECIONADOS (Tabela)
+    // =========================================================
+    async function excluirSelecionados(){
+    try{
     const checks = Array.from(document.querySelectorAll("#tabelaLancamentos tbody .chkLancSel:checked"));
     if(!checks.length){
       alert("Selecione pelo menos 1 linha na coluna SEL.");
@@ -4530,16 +4537,16 @@ async function excluirSelecionados(){
     const btn = document.getElementById("btnExcluirSelecionados");
     if(btn){ btn.disabled = false; btn.textContent = "🗑️ Excluir selecionados"; }
   }
-}
+  }
 
-// bind (UMA VEZ)
-(function bindExcluirSelecionadosOnce(){
+  // bind (UMA VEZ)
+  (function bindExcluirSelecionadosOnce(){
   const btn = document.getElementById("btnExcluirSelecionados");
   if(!btn) return;
   if(btn.dataset.bound === "1") return;
   btn.dataset.bound = "1";
   btn.addEventListener("click", excluirSelecionados);
-})();
+  })();
 
       /* =========================================================
         ➕ ADICIONAR LINHA ABAIXO (LANÇAMENTOS)
@@ -4733,21 +4740,21 @@ const quem_lancou = (emailLogado.split("@")[0] || "").trim();
     console.error(error);
     alert("Erro ao salvar novo lançamento. Veja o console (F12).");
     return;
-  }
+    }
 
-  window.listaLancamentos = window.listaLancamentos || [];
-  window.listaLancamentos.push(data);
+    window.listaLancamentos = window.listaLancamentos || [];
+    window.listaLancamentos.push(data);
 
-  window.listaObras = [...new Set(window.listaLancamentos.map(x => x.obra).filter(Boolean))].sort();
-  window.listaIds = [...new Set(window.listaLancamentos.map(x => x.id_manual).filter(v => v !== null && v !== undefined))]
+    window.listaObras = [...new Set(window.listaLancamentos.map(x => x.obra).filter(Boolean))].sort();
+    window.listaIds = [...new Set(window.listaLancamentos.map(x => x.id_manual).filter(v => v !== null && v !== undefined))]
     .sort((a,b)=> Number(a)-Number(b));
 
-  linha.remove();
-  voltarTabelaParaInicio(); // ✅ volta o scroll horizontal pro começo
-  montarListaFiltroObras();
-  aplicarFiltroGeral();
-}
-window.salvarLinhaTemp = salvarLinhaTemp;
+    linha.remove();
+    voltarTabelaParaInicio(); // ✅ volta o scroll horizontal pro começo
+    montarListaFiltroObras();
+    aplicarFiltroGeral();
+    }
+    window.salvarLinhaTemp = salvarLinhaTemp;
 
       /* =========================================================
         EDITAR INLINE (LANÇAMENTOS)
@@ -4779,7 +4786,7 @@ window.salvarLinhaTemp = salvarLinhaTemp;
           .concat(obras.map(o => `<option value="${o}">${o}</option>`))
           .join("");
 
-tr.innerHTML = `
+  tr.innerHTML = `
   <td>${formatarIdManual(lanc.id_manual)}</td>
 
   <td>
@@ -5750,8 +5757,6 @@ function atualizarDashboardSeAberto(){
     XLSX.writeFile(wb, "ficha-obra.xlsx");
   }
   window.exportarDetalhesExcel = exportarDetalhesExcel;
-
-
 
   async function exportarDetalhesPDF(){
     const box = document.querySelector(".detalhesObraBox");
