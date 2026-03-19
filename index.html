@@ -134,10 +134,10 @@
         right: 12px;
         height: 1px;
         background: linear-gradient(
-          to right,
-          rgba(255,255,255,0.05),
-          rgba(200,210,220,0.35),
-          rgba(255,255,255,0.05)
+        to right,
+        rgba(255,255,255,0.05),
+        rgba(200,210,220,0.35),
+        rgba(255,255,255,0.05)
         );
       }
 
@@ -180,30 +180,30 @@
         background: rgba(255,255,255,.12);
       }
 
-#btnMenuSair{
-  position: absolute;
-  bottom: 40px;
-  left: 0;
-  right: 0;
-  margin: 0 6px;
-  height: 35px;
-  padding: 0 10px;              /* ✅ padding normal */
-  border-radius: 12px;
-  box-sizing: border-box;
+    #btnMenuSair{
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+    margin: 0 6px;
+    height: 35px;
+    padding: 0 10px;              /* ✅ padding normal */
+    border-radius: 12px;
+    box-sizing: border-box;
 
-  background: #E6B12E !important;
-  color: #000 !important;
-  border: none !important;
+    background: #E6B12E !important;
+    color: #000 !important;
+    border: none !important;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;       /* ✅ centraliza o texto */
-  gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;       /* ✅ centraliza o texto */
+    gap: 0;
 
-  width: auto !important;
-  max-width: none !important;
-}
-#btnMenuSair:hover{ background: #E6B12E !important; }
+    width: auto !important;
+    max-width: none !important;
+    }
+    #btnMenuSair:hover{ background: #E6B12E !important; }
 
       .sideIcon{
         width: 22px;
@@ -227,19 +227,19 @@
       transform: translateX(0);
 
       transition: none;
-}
+    }
 
 
 
-#conteudoSistema{
-  margin-left: calc(var(--menu-aberto) - 1px);
-  transition: margin-left .18s ease;
-}
+    #conteudoSistema{
+    margin-left: calc(var(--menu-aberto) - 1px);
+    transition: margin-left .18s ease;
+    }
 
-/* não precisa mais do hover empurrando o conteúdo */
-/* #sideMenu:hover ~ #app #conteudoSistema{
-  margin-left: calc(var(--menu-aberto) - 1px);
-} */
+    /* não precisa mais do hover empurrando o conteúdo */
+    /* #sideMenu:hover ~ #app #conteudoSistema{
+    margin-left: calc(var(--menu-aberto) - 1px);
+      } */
 
       /* =========================================================
         TOP CONTROLS
@@ -379,37 +379,37 @@
 
       #btnLimparFiltros img:hover { opacity: 0.7; }
 
-/* =========================================================
+  /* =========================================================
    ✅ COLUNAS FIXAS À DIREITA (AÇÕES / USUÁRIO) — bloco ÚNICO
    ========================================================= */
 
-/* larguras fixas */
+  /* larguras fixas */
   #tabelaLancamentos{ --w-acoes: 92px; --w-sel: 56px; --w-usuario: 180px; }
 
 
-/* garante que o conteúdo de AÇÕES não quebre linha */
+  /* garante que o conteúdo de AÇÕES não quebre linha */
   #tabelaLancamentos td.tdAcoes,
   #tabelaLancamentos th.thAcoes{
   white-space: nowrap;
-}
+  }
 
 
   /* Cabeçalho sempre acima de qualquer sticky do corpo */
   #tabelaLancamentos thead th{
-  z-index: 200 !important;
-}
+  z-index: 200 !important;  
+  }
 
 
-/* ===== FIX: cabeçalho das colunas fixas da ESQUERDA sempre por cima ===== */
-#tabelaLancamentos thead th:nth-child(1),
-#tabelaLancamentos thead th:nth-child(2),
-#tabelaLancamentos thead th:nth-child(3),
-#tabelaLancamentos thead th:nth-child(4){
+  /* ===== FIX: cabeçalho das colunas fixas da ESQUERDA sempre por cima ===== */
+  #tabelaLancamentos thead th:nth-child(1),
+  #tabelaLancamentos thead th:nth-child(2),
+  #tabelaLancamentos thead th:nth-child(3),
+  #tabelaLancamentos thead th:nth-child(4){
   z-index: 9999 !important;
   background: #a5c8dc !important;
-}
+  }
 
-/* AÇÕES (padrão): fica na direita */
+  /* AÇÕES (padrão): fica na direita */
   #tabelaLancamentos th.thAcoes,
   #tabelaLancamentos td.tdAcoes{
   position: sticky;
@@ -420,11 +420,11 @@
   min-width: var(--w-acoes);
   text-align: center;
   padding: 0 4px;
-}
+  }
 
-/* ✅ SEL (padrão): fica na direita (última coluna visível quando USUÁRIO está oculto) */
-#tabelaLancamentos th.thSel,
-#tabelaLancamentos td.tdSel{
+  /* ✅ SEL (padrão): fica na direita (última coluna visível quando USUÁRIO está oculto) */
+  #tabelaLancamentos th.thSel,
+  #tabelaLancamentos td.tdSel{
   position: sticky;
   right: 0;                      /* ✅ SEL é a última */
   z-index: 80;                   /* um pouco acima de AÇÕES */
@@ -433,28 +433,28 @@
   min-width: var(--w-sel);
   text-align: center;
   padding: 0 !important;
-}
+  }
 
-/* corpo da SEL com o mesmo fundo do bloco sticky da direita */
+  /* corpo da SEL com o mesmo fundo do bloco sticky da direita */
   #tabelaLancamentos tbody td.tdSel{
   background: #a5c8dc;
-}
+  }
 
   #tabelaLancamentos td.tdSel{
   display: flex;              /* ✅ garante centro de verdade */
   align-items: center;
   justify-content: center;
   padding: 0 !important;
-}
+  }
 
   #tabelaLancamentos .chkLancSel{
   width: 16px;
   height: 16px;
   margin: 0 !important;
   cursor: pointer;
-}
+  }
 
-/* quando Wesley: USUÁRIO aparece na direita e AÇÕES vai antes */
+  /* quando Wesley: USUÁRIO aparece na direita e AÇÕES vai antes */
   #tabelaLancamentos.modoWesley th.thUsuarioLanc,
   #tabelaLancamentos.modoWesley td.tdUsuarioLanc{
   position: sticky;
@@ -466,20 +466,20 @@
 
   text-align: center !important;
   vertical-align: middle;
-}
+  }
 
-/* ✅ no modoWesley: SEL fica antes do USUÁRIO */
-#tabelaLancamentos.modoWesley th.thSel,
-#tabelaLancamentos.modoWesley td.tdSel{
+  /* ✅ no modoWesley: SEL fica antes do USUÁRIO */
+  #tabelaLancamentos.modoWesley th.thSel,
+  #tabelaLancamentos.modoWesley td.tdSel{
   right: var(--w-usuario);  /* ✅ SEL antes do USUÁRIO */
   z-index: 82;
-}
+  }
 
-#tabelaLancamentos.modoWesley th.thAcoes,
-#tabelaLancamentos.modoWesley td.tdAcoes{
+  #tabelaLancamentos.modoWesley th.thAcoes,
+  #tabelaLancamentos.modoWesley td.tdAcoes{
   right: calc(var(--w-usuario) + var(--w-sel));  /* ✅ AÇÕES antes de SEL + USUÁRIO */
   z-index: 71;
-}
+  }
 
   /* botãozinhos sempre alinhados (evita “quebrar” quando clica no +) */
   #tabelaLancamentos td.tdAcoes .acoesWrap{
@@ -488,16 +488,16 @@
   align-items: center;
   gap: 4px;
   flex-wrap: nowrap;
-}
-
-  /* separador visual */
-  #tabelaLancamentos th.thAcoes,
-  #tabelaLancamentos td.tdAcoes,
-  #tabelaLancamentos.modoWesley th.thUsuarioLanc,
-  #tabelaLancamentos.modoWesley td.tdUsuarioLanc{
-  border-left: 2px solid #c7cdd4;
-  box-shadow: -1px 0 0 #e5e7eb;
   }
+
+    /* separador visual */
+    #tabelaLancamentos th.thAcoes,
+    #tabelaLancamentos td.tdAcoes,
+    #tabelaLancamentos.modoWesley th.thUsuarioLanc,
+    #tabelaLancamentos.modoWesley td.tdUsuarioLanc{
+    border-left: 2px solid #c7cdd4;
+    box-shadow: -1px 0 0 #e5e7eb;
+    }
 
     #tabelaLancamentos tbody td:nth-child(1) { position: sticky; left: 0;   z-index: 25; background:#b3c9df; }
     #tabelaLancamentos tbody td:nth-child(2) { position: sticky; left: 50px;  z-index: 25; background:#b3c9df; }
@@ -946,8 +946,8 @@
       .btnCancelar svg{ fill: #ef4444; } /* vermelho */
 
   /* =========================================================
-    ✅ TABELA OBRAS — AJUSTE DE LAYOUT (STATUS / AÇÕES / SEL)
-    ========================================================= */
+  ✅ TABELA OBRAS — AJUSTE DE LAYOUT (STATUS / AÇÕES / SEL)
+  ========================================================= */
 
   #tabelaObras{
   width: 100%;
@@ -3739,17 +3739,35 @@ if (thUser) thUser.style.display = isWesley ? "" : "none";
         return;
       }
 
-    if (!nome || !cidade || !regional) {
-    alert("Preencha Nome da Obra, Cidade e Regional!");
-    return;
-    }
+if (!nome || !cidade || !regional) {
+  alert("Preencha Nome da Obra, Cidade e Regional!");
+  return;
+}
 
-    const payload = {
-    id_manual: idManual,
-    nome_obra: nome,
-    cidade: cidade,
-    regional: regional
-    };
+// ✅ verifica se o ID já existe
+const { data: obraExistente, error: erroConsultaId } = await window.supabaseClient
+  .from("obras_cadastro")
+  .select("obra_id, id_manual")
+  .eq("id_manual", idManual)
+  .maybeSingle();
+
+if (erroConsultaId) {
+  console.error("ERRO AO VERIFICAR ID:", erroConsultaId);
+  alert("Erro ao validar o ID. Veja o console (F12).");
+  return;
+}
+
+if (obraExistente) {
+  alert("ID JÁ CADASTRADO");
+  return;
+}
+
+const payload = {
+  id_manual: idManual,
+  nome_obra: nome,
+  cidade: cidade,
+  regional: regional
+};
 
     const { data: obraSalva, error } = await window.supabaseClient
     .from("obras_cadastro")
